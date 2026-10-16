@@ -1,3 +1,7 @@
+# Admin policy correction — October 16, 2026
+
+Commission rates, basis and payout settings are admin-dashboard configuration, not values the owner must supply before coding can continue. `/admin/settings` now has source for explicit publication of the latest draft into immutable policy versions with admin/MFA authorization, immediate effective time, retry/conflict protection and no financial defaults. Migration `20261016190000_program_policy_publication.sql` and rollback SQL acceptance are source-only/unexecuted. Published policies are not yet consumed by calculations or transfers; do not claim active earnings. Existing attribution integration blockers remain separate from configurable business rules.
+
 # OneToolz Affiliate Platform — Planning Memory
 
 ## Approved attribution / evidence increment — newest

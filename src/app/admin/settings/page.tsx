@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireAccess } from "@/lib/auth/access";
 import { percentageFromBasisPoints } from "@/lib/admin/program-settings";
 import { SubmitButton } from "@/components/submit-button";
-import { saveProgramSettings } from "./actions";
+import { publishProgramPolicy, saveProgramSettings } from "./actions";
 
 export const metadata = { title: "Program settings" };
 
@@ -14,17 +14,24 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
     .select("revision,commission_bps,currency,minimum_payout,hold_days,payout_cadence,reason,created_at")
     .order("revision", { ascending: false }).limit(10);
   const latest = data?.[0];
+  const { data: policies, error: policyError } = await client.from("program_policies")
+    .select("version,draft_revision,commission_bps,currency,currency_decimals,minimum_payout,hold_days,payout_cadence,basis,refund_rule,scope,effective_at,reason")
+    .order("version", { ascending: false }).limit(10);
+  const published = policies?.[0];
   const notices: Record<string, string> = {
     saved: "Draft saved with an immutable revision. No earning or disbursement rules were activated.",
     invalid: "Check the required fields and confirmation. Percentage must be 0–100, with up to two decimal places.",
     conflict: "Another administrator saved a newer revision. Review the latest values before saving again.",
     failed: "The draft could not be saved. No success is assumed; refresh to check revision history.",
+    published: "Policy published as a new immutable version, effective from its server publication time. No transfers or historical recalculations occurred.",
+    publicationInvalid: "Choose a saved draft, currency precision, calculation basis, refund rule and explicit publication confirmation.",
+    publicationFailed: "Publication could not be confirmed. Check storage availability and currency precision, then refresh before retrying.",
   };
   return <section className="section content-page"><span className="eyebrow">ADMINISTRATION</span>
     <h1>Commission &amp; disbursement settings.</h1>
-    <p>Prepare program-wide settings here. Each save creates a new draft revision and records your explanation.</p>
-    <div className="notice"><strong>Draft only — earnings and transfers are off</strong>
-      <p>Saving does not publish a policy, recalculate past orders, reverse commissions, or send money. Commission basis, refund rules, currency precision and effective dates must be reviewed before future activation.</p></div>
+    <p>Configure commission and payout rules here. Save a draft, then explicitly publish the latest revision below.</p>
+    <div className="notice"><strong>Admin-controlled rules — no automatic transfers</strong>
+      <p>Draft saves are inactive. Publishing preserves an immutable policy effective from publication, without rewriting older rules. Order calculation, settlement validation and payout execution must be integrated separately; publishing alone does not create earnings or send money.</p></div>
     {params.notice && notices[params.notice] && <p className="notice" role="status">{notices[params.notice]}</p>}
     {error ? <p className="notice" role="alert">Settings storage is unavailable or not installed. Saving is disabled; no default policy is assumed.</p> : <>
       <form action={saveProgramSettings} className="feature-card">
@@ -53,6 +60,32 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
         <p className="review-text">{draft.reason}</p><p className="field-help">{draft.created_at} · UTC timestamp</p>
       </article>)}
       <p className="field-help">Showing the latest 10 revisions. Earlier revisions remain stored.</p>
+    </>}
+    <h2>Publish commission policy</h2>
+    {policyError ? <p className="notice" role="alert">Policy publication storage is unavailable or not installed. Publishing is disabled; draft editing remains separate.</p> : <>
+      {!error && latest && published?.draft_revision !== latest.revision ? <form action={publishProgramPolicy} className="feature-card">
+        <input type="hidden" name="requestId" value={randomUUID()} />
+        <input type="hidden" name="draftRevision" value={latest.revision} />
+        <input type="hidden" name="expectedVersion" value={published?.version ?? 0} />
+        <h3>Publish draft {latest.revision} as policy {(published?.version ?? 0) + 1}</h3>
+        <p>{percentageFromBasisPoints(latest.commission_bps)}% commission · {latest.currency} {latest.minimum_payout} minimum · {latest.hold_days}-day hold · {latest.payout_cadence} payout review.</p>
+        <label>Currency decimal places<input name="currencyDecimals" type="number" min="0" max="6" step="1" required /></label>
+        <p className="field-help">Select the actual currency precision, not an invented exchange rate. The minimum payout must fit that precision.</p>
+        <label>Calculation basis<select name="basis" required defaultValue=""><option value="" disabled>Choose a basis</option><option value="net_items">Item totals after discounts, excluding tax and shipping</option><option value="order_total">Full order total, including tax and shipping</option></select></label>
+        <label>Refund treatment<select name="refundRule" required defaultValue=""><option value="" disabled>Choose a refund rule</option><option value="proportional">Proportional reversal against the chosen basis</option><option value="full_on_any_refund">Reverse the entire commission on any refund</option></select></label>
+        <p className="field-help">This release supports percentage commissions on all products, one commission per eligible order; no recurring renewal awards or product overrides. Effective immediately on publication; no backdating. Payout cadence is review timing, not transfer authorization.</p>
+        <label>Publication reason<textarea name="reason" minLength={10} maxLength={1000} rows={3} required /></label>
+        <label className="check-label"><input type="checkbox" name="publishConfirmed" value="yes" required /> I approve the displayed draft, calculation/refund choices, currency precision and all-products one-time scope for future eligible orders.</label>
+        <SubmitButton>Publish policy version</SubmitButton>
+      </form> : <p>{error ? "Draft storage must be available before publication." : latest ? "The latest draft is already published. Save a new draft to change the rules." : "Save a draft before publishing a policy."}</p>}
+      <h2>Published policy history</h2>
+      {!policies?.length && <p>No policy is published. No commission rate is assumed.</p>}
+      {policies?.map(policy => <article className="feature-card" key={policy.version}><h3>Policy {policy.version} · Draft {policy.draft_revision}</h3>
+        <p>{percentageFromBasisPoints(policy.commission_bps)}% · {policy.currency} ({policy.currency_decimals} decimal places) · {policy.basis} basis · {policy.refund_rule} refunds</p>
+        <p>{policy.currency} {policy.minimum_payout} minimum · {policy.hold_days}-day hold · {policy.payout_cadence} review · All products, one-time order scope</p>
+        <p className="review-text">{policy.reason}</p><p className="field-help">Effective {policy.effective_at} · UTC server timestamp</p>
+      </article>)}
+      <p className="field-help">Showing the latest 10 published versions. Prior versions remain stored and cannot be edited through the application.</p>
     </>}
     <Link href="/admin" className="text-link">Back to administration</Link>
   </section>;
