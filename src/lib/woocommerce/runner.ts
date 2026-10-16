@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import type { Environment } from "../config";
+import { ingestionConfiguration } from "./configuration";
 
 type Dependencies = {
   requeue: () => Promise<number>;
@@ -17,7 +18,7 @@ export async function handleWooRunner(request: Request, env: Environment, depend
   const secret = env.WOO_WORKER_SECRET ?? "";
   if (env.WOO_WORKER_ENABLED !== "true" || secret.length < 32 || secret.length > 256 ||
     secret.trim() !== secret || secret === env.WOO_WEBHOOK_SECRET ||
-    !["local", "staging"].includes(env.APP_ENV ?? "") || env.SUPABASE_ENVIRONMENT !== "nonproduction") {
+    !ingestionConfiguration(env)) {
     return respond(503, { error: "WORKER_DISABLED" });
   }
   const authorization = request.headers.get("authorization") ?? "";

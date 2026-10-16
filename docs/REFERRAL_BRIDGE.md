@@ -1,5 +1,7 @@
 # Trusted referral bridge — inbound protocol v1
 
+**Production classification update:** owner confirms `nwgdzzpcbqmfqujycpqk` is production. Current source permits it only in explicitly configured production runtime and rejects it in local/staging/previews. Old statements below requiring a different production project are superseded. Use a separate test database for SQL acceptance; do not run fixture suites on production. Referral migrations are still uninstalled, bridge disabled, and store adapter incomplete. See `PRODUCTION_HANDOFF.md`.
+
 ## Status and trust boundary
 
 Implemented receiver: `POST /api/referrals/bridge`. This is **not a completed Woo plugin** or a public click collector. The approved policy is first-click / 7 days / no self-referrals. Neither new migration is installed by this increment. Keep `REFERRAL_BRIDGE_ENABLED=false` until database acceptance and a trusted store adapter are complete.

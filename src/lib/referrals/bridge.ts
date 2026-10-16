@@ -1,5 +1,6 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import type { Environment } from "@/lib/config";
+import { databaseEnvironmentAllowed } from "../database-environment.mts";
 import { boundedBody } from "@/lib/woocommerce/webhook";
 import { validReferralCode } from "./campaigns";
 import { REFERRAL_POLICY } from "./policy";
@@ -12,16 +13,14 @@ export type BridgeEvent =
 
 export function bridgeConfiguration(env: Environment) {
   if (env.REFERRAL_BRIDGE_ENABLED !== "true" || env.VERCEL_ENV === "preview" ||
-    !["local", "staging", "production"].includes(env.APP_ENV ?? "") ||
-    env.SUPABASE_ENVIRONMENT !== (env.APP_ENV === "production" ? "production" : "nonproduction")) return null;
+    !databaseEnvironmentAllowed(env)) return null;
   const secret = env.REFERRAL_BRIDGE_SECRET ?? "";
   const key = env.REFERRAL_SUPABASE_SECRET_KEY ?? "";
   const url = env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   if (secret.length < 32 || secret.length > 256 || secret.trim() !== secret ||
     secret === env.WOO_WEBHOOK_SECRET || secret === env.WOO_WORKER_SECRET ||
     !key.startsWith("sb_secret_") || !/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(url) ||
-    env.REFERRAL_APPROVED_SUPABASE_URL !== url ||
-    (env.APP_ENV === "production" && url === "https://nwgdzzpcbqmfqujycpqk.supabase.co")) return null;
+    env.REFERRAL_APPROVED_SUPABASE_URL !== url) return null;
   return { secret, key, url };
 }
 

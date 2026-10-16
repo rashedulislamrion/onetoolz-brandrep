@@ -1,5 +1,9 @@
 # Delivery status — 2026-10-16
 
+## Production classification correction — authoritative newest
+
+Owner confirms connected project `nwgdzzpcbqmfqujycpqk` is PRODUCTION. Earlier nonproduction labels below are incorrect; prior fixture tests occurred under that mistake. Current work performed only read-only production audit and source changes: production-aware auth/Woo/referral guards, exact Woo database approval, worker prerequisites and live-auth production fixture denial. Seven migrations and 17 RLS-enabled tables verified; drafts/policies/orders zero; referral tables absent. No production writes or activation this increment. See `PRODUCTION_HANDOFF.md` for requirements and next implementation gates. Phase 3 and phase 4 are not complete.
+
 ## Database connection and next-phase arithmetic — newest
 
 Verified active Supabase connection and installed only the accepted policy-publication migration on nonproduction as `20261016114552`. Six prior migrations were not rerun. Rollback rehearsal and installed RPC authorization/retry/conflict/precision acceptance passed, including immutability denial. Postchecks: policies/drafts/test users zero; application count unchanged at one; Woo orders zero; least-privilege grants and RLS verified. No actual policy, checkout, earning or transfer created. Referral migrations remain uninstalled and their acceptance is still pending.

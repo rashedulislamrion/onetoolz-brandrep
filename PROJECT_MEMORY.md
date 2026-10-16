@@ -1,4 +1,8 @@
-# Database connection and commission foundation — October 16, 2026
+# PRODUCTION DATABASE CORRECTION — authoritative October 16, 2026
+
+Owner confirms nwgdzzpcbqmfqujycpqk is PRODUCTION. All earlier nonproduction classifications below are incorrect/historical. Never run synthetic identities, rollback fixture suites, concurrency clones or test harnesses against it. Previous rollback SQL tests DID occur under mistaken classification; earlier zero-fixture postcheck is not proof production was untouched. Current increment read-only audit: seven migrations, 17 RLS tables, zero policies/drafts/Woo orders, referral tables absent. Production gates now accept explicitly configured production, deny local/staging/preview misuse; Woo requires exact WOO_APPROVED_SUPABASE_URL. Live-auth harness rejects this project. No activation or production write this increment. See docs/PRODUCTION_HANDOFF.md. Separate test database needed for SQL acceptance, not a replacement production DB. Continue source work; admin supplies business values via dashboard.
+
+# Database connection and commission foundation — October 16, 2026 (historical; classification superseded)
 
 Supabase connection verified ACTIVE; sole visible project nwgdzzpcbqmfqujycpqk remains nonproduction. Six prior migrations untouched. Policy publication installed as 20261016114552 after rollback rehearsal; installed RPC acceptance passed, synthetic fixtures rolled back, policies/drafts 0, application count unchanged 1, Woo orders 0. Local filename aligned to assigned version: do not replay. No production connection/activation or hosting changes. Referral migrations remain source-only/unaccepted; independent-session publication races outstanding. Added offline nonposting commission arithmetic/policy selection with 41 focused tests; no earning worker or transfers. See docs/COMMISSION_ACCOUNTING.md for next integration gates. Admin—not owner-provided constants—configures commercial rules.
 

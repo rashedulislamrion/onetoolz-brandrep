@@ -1,12 +1,14 @@
 import type { Environment } from "../config";
+import { databaseEnvironmentAllowed } from "../database-environment.mts";
 
 // Offline checks only. Never return input values, credentials, or a launch-ready claim.
 export function wooReadiness(env: Environment) {
   const secretValid = (value: string | undefined) => !!value && value.length >= 32 && value.length <= 256 && value.trim() === value;
   const checks = [
-    { name: "supported_application_environment", passed: ["local", "staging"].includes(env.APP_ENV ?? "") },
-    { name: "nonproduction_database", passed: env.SUPABASE_ENVIRONMENT === "nonproduction" },
-    { name: "expected_database", passed: env.NEXT_PUBLIC_SUPABASE_URL === "https://nwgdzzpcbqmfqujycpqk.supabase.co" },
+    { name: "isolated_database_environment", passed: databaseEnvironmentAllowed(env) },
+    { name: "not_preview", passed: env.VERCEL_ENV !== "preview" },
+    { name: "approved_database", passed: /^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(env.NEXT_PUBLIC_SUPABASE_URL ?? "") &&
+      !!env.NEXT_PUBLIC_SUPABASE_URL && env.WOO_APPROVED_SUPABASE_URL === env.NEXT_PUBLIC_SUPABASE_URL },
     { name: "expected_store", passed: env.WOO_STORE_ORIGIN === "https://cu.onetoolz.com" },
     { name: "store_verification_attested", passed: env.WOO_STORE_VERIFIED === "true" },
     { name: "production_data_access_approved", passed: env.WOO_PRODUCTION_STORE_ACCESS_APPROVED === "true" },

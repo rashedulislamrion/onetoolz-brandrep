@@ -3,7 +3,7 @@ import { liveAuthConfiguration } from "../support/live-auth-config";
 import { totp } from "../support/totp";
 
 describe("live Auth test isolation", () => {
-  const environment = { RUN_LIVE_AUTH_TESTS: "true", E2E_SUPABASE_PROJECT_REF: "nwgdzzpcbqmfqujycpqk", APP_ENV: "local", SUPABASE_ENVIRONMENT: "nonproduction", NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co", E2E_SUPABASE_SECRET_KEY: "sb_secret_test_fixture_only" };
+  const environment = { RUN_LIVE_AUTH_TESTS: "true", E2E_SUPABASE_PROJECT_REF: "abcdefghijklmnopqrst", APP_ENV: "local", SUPABASE_ENVIRONMENT: "nonproduction", NEXT_PUBLIC_SUPABASE_URL: "https://abcdefghijklmnopqrst.supabase.co", E2E_SUPABASE_SECRET_KEY: "sb_secret_test_fixture_only" };
   it("accepts the explicitly approved project", () => expect(liveAuthConfiguration(environment).url).toBe(environment.NEXT_PUBLIC_SUPABASE_URL));
   it.each(Object.keys(environment))("rejects missing %s", key => {
     expect(() => liveAuthConfiguration({ ...environment, [key]: undefined })).toThrow();
@@ -11,6 +11,10 @@ describe("live Auth test isolation", () => {
   it("rejects production and mismatched project URLs", () => {
     expect(() => liveAuthConfiguration({ ...environment, APP_ENV: "production" })).toThrow();
     expect(() => liveAuthConfiguration({ ...environment, NEXT_PUBLIC_SUPABASE_URL: "https://other.supabase.co" })).toThrow();
+  });
+  it("rejects the production project even when mislabeled nonproduction", () => {
+    expect(() => liveAuthConfiguration({ ...environment, E2E_SUPABASE_PROJECT_REF: "nwgdzzpcbqmfqujycpqk",
+      NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co" })).toThrow();
   });
 });
 describe("test-only TOTP generator", () => {

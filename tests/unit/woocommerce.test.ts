@@ -46,13 +46,15 @@ describe("Woo intake", () => {
     const failure = await receiveWebhook(request(), { secret, origin, persist });
     expect(failure.status).toBe(503); expect(await failure.text()).toBe("");
   });
-  it("defaults off and rejects production or unverified configuration", () => {
+  it("defaults off and requires explicit production and database approval", () => {
     expect(ingestionConfiguration({})).toBeNull();
-    const env = { WOO_INGESTION_ENABLED: "true", APP_ENV: "staging", SUPABASE_ENVIRONMENT: "nonproduction", WOO_STORE_VERIFIED: "true",
+    const env = { WOO_INGESTION_ENABLED: "true", APP_ENV: "production", SUPABASE_ENVIRONMENT: "production", WOO_STORE_VERIFIED: "true",
       WOO_STORE_ORIGIN: origin, WOO_WEBHOOK_SECRET: secret, WOO_INGESTION_SUPABASE_SECRET_KEY: "sb_secret_fixture_only",
-      NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co", WOO_PRODUCTION_STORE_ACCESS_APPROVED: "true" };
+      NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co", WOO_APPROVED_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co", WOO_PRODUCTION_STORE_ACCESS_APPROVED: "true" };
     expect(ingestionConfiguration(env)).not.toBeNull();
-    expect(ingestionConfiguration({ ...env, APP_ENV: "production" })).toBeNull();
+    expect(ingestionConfiguration({ ...env, APP_ENV: "staging", SUPABASE_ENVIRONMENT: "nonproduction" })).toBeNull();
+    expect(ingestionConfiguration({ ...env, VERCEL_ENV: "preview" })).toBeNull();
+    expect(ingestionConfiguration({ ...env, WOO_APPROVED_SUPABASE_URL: undefined })).toBeNull();
     expect(ingestionConfiguration({ ...env, WOO_STORE_VERIFIED: "false" })).toBeNull();
     expect(ingestionConfiguration({ ...env, WOO_PRODUCTION_STORE_ACCESS_APPROVED: "false" })).toBeNull();
     expect(ingestionConfiguration({ ...env, WOO_PRODUCTION_STORE_ACCESS_APPROVED: undefined })).toBeNull();

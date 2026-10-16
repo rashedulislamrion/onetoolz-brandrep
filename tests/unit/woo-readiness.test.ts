@@ -24,7 +24,8 @@ describe("offline production-store readiness", () => {
     expect(report).not.toContain("PRIVATE_MARKER");
   });
   it("does not mistake configuration for verified launch readiness", () => {
-    const env = { APP_ENV: "staging", SUPABASE_ENVIRONMENT: "nonproduction", NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co",
+    const env = { APP_ENV: "production", SUPABASE_ENVIRONMENT: "production", NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co",
+      WOO_APPROVED_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co",
       WOO_STORE_ORIGIN: "https://cu.onetoolz.com", WOO_STORE_VERIFIED: "true", WOO_PRODUCTION_STORE_ACCESS_APPROVED: "true",
       WOO_WEBHOOK_SECRET: "synthetic-webhook-key-for-unit-testing", WOO_WORKER_SECRET: "synthetic-worker-key-for-unit-testing",
       WOO_INGESTION_SUPABASE_SECRET_KEY: "sb_secret_fixture", WOO_READ_CONSUMER_KEY: `ck_${"a".repeat(40)}`, WOO_READ_CONSUMER_SECRET: `cs_${"b".repeat(40)}` };
@@ -32,5 +33,7 @@ describe("offline production-store readiness", () => {
     expect(wooReadiness(env).launchReadiness).toBe("NOT_VERIFIED");
     expect(wooReadiness({ ...env, WOO_PRODUCTION_STORE_ACCESS_APPROVED: "false" }).configurationChecksPassed).toBe(false);
     expect(wooReadiness({ ...env, WOO_WORKER_SECRET: env.WOO_WEBHOOK_SECRET }).configurationChecksPassed).toBe(false);
+    expect(wooReadiness({ ...env, APP_ENV: "local", SUPABASE_ENVIRONMENT: "nonproduction" }).configurationChecksPassed).toBe(false);
+    expect(wooReadiness({ ...env, VERCEL_ENV: "preview" }).configurationChecksPassed).toBe(false);
   });
 });

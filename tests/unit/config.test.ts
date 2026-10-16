@@ -6,6 +6,14 @@ describe("environment isolation", () => {
   it("disables unconfigured authentication", () => expect(getAuthConfiguration({}).ready).toBe(false));
   it("accepts explicitly isolated local configuration", () => expect(getAuthConfiguration(valid).ready).toBe(true));
   it("rejects production project use locally", () => expect(getAuthConfiguration({ ...valid, SUPABASE_ENVIRONMENT: "production" }).ready).toBe(false));
+  it("blocks the known production project even if mislabeled for local development", () => {
+    expect(getAuthConfiguration({ ...valid, NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co" }).ready).toBe(false);
+    expect(getAuthConfiguration({ ...valid, NEXT_PUBLIC_SUPABASE_URL: "https://NWGDZZPCBQMFQUJYCPQK.supabase.co/" }).ready).toBe(false);
+  });
+  it("allows explicitly configured owner-confirmed production authentication", () => {
+    expect(getAuthConfiguration({ ...valid, APP_ENV: "production", SUPABASE_ENVIRONMENT: "production",
+      APP_ORIGIN: "https://brandrep.onetoolz.com", NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co" }).ready).toBe(true);
+  });
   it("rejects production credentials in previews", () => expect(getAuthConfiguration({ ...valid, APP_ENV: "production", SUPABASE_ENVIRONMENT: "production", VERCEL_ENV: "preview", APP_ORIGIN: "https://app.example" }).ready).toBe(false));
   it.each(["sb_secret_not_a_real_key", "service-role-key", ""])("rejects nonpublishable key %s", (key) => expect(getAuthConfiguration({ ...valid, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: key }).ready).toBe(false));
   it.each(["https://user:password@app.example", "http://public.example", "https://app.example/path", "javascript:alert(1)", "https://app.example?query=1"])("rejects unsafe origin %s", (origin) => expect(getAuthConfiguration({ ...valid, APP_ORIGIN: origin }).ready).toBe(false));

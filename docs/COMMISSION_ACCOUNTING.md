@@ -1,5 +1,7 @@
 # Commission accounting foundation — October 16, 2026
 
+**Correction:** `nwgdzzpcbqmfqujycpqk` is owner-confirmed PRODUCTION. Earlier nonproduction classification below is incorrect/historical; prior rollback tests did occur there under that mistake. No more fixture acceptance may run there. Management connection is verified, deployed runtime connection is not. See `PRODUCTION_HANDOFF.md` for current requirements.
+
 ## Delivered
 
 Admin publication is installed only on the existing nonproduction Supabase project `nwgdzzpcbqmfqujycpqk`, tracked as `20261016114552_program_policy_publication.sql`. Six prior migrations were not replayed. Full rollback rehearsal and installed RPC acceptance passed: admin AAL2 publication, identical retry, stale conflict, precision failure, direct-write denial, AAL1/nonadmin denial and immutable-update denial. Postcheck: zero policies/drafts/test users, one unchanged application, zero Woo orders; RLS enabled, anonymous publication and authenticated direct insert denied. No real policy was published.

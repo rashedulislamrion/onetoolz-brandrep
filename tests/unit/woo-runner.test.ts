@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { handleWooRunner } from "../../src/lib/woocommerce/runner";
 
 const secret = "synthetic-runner-fixture-never-a-real-credential";
-const env = { WOO_WORKER_ENABLED: "true", WOO_WORKER_SECRET: secret, APP_ENV: "staging", SUPABASE_ENVIRONMENT: "nonproduction" };
+const env = { WOO_WORKER_ENABLED: "true", WOO_WORKER_SECRET: secret, APP_ENV: "production", SUPABASE_ENVIRONMENT: "production",
+  WOO_INGESTION_ENABLED: "true", WOO_STORE_VERIFIED: "true", WOO_PRODUCTION_STORE_ACCESS_APPROVED: "true",
+  WOO_STORE_ORIGIN: "https://cu.onetoolz.com", WOO_WEBHOOK_SECRET: "synthetic-separate-webhook-secret-for-testing",
+  WOO_INGESTION_SUPABASE_SECRET_KEY: "sb_secret_fixture", NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co",
+  WOO_APPROVED_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co" };
 const request = (authorization = `Bearer ${secret}`, method = "POST") => new Request("https://example.invalid/api/internal/woocommerce/run", {
   method, headers: { authorization },
 });
@@ -26,8 +30,9 @@ describe("authorized bounded Woo worker runner", () => {
     expect(await result.json()).toEqual({ attempted: 0, requeued: 2, error: "DISCOVERY_UNAVAILABLE" });
     expect(deps.refresh).toHaveBeenCalledOnce();
   });
-  it.each([{}, { ...env, WOO_WORKER_ENABLED: "false" }, { ...env, APP_ENV: "production" },
-    { ...env, SUPABASE_ENVIRONMENT: "production" }, { ...env, WOO_WORKER_SECRET: "short" },
+  it.each([{}, { ...env, WOO_WORKER_ENABLED: "false" }, { ...env, APP_ENV: "staging" },
+    { ...env, SUPABASE_ENVIRONMENT: "nonproduction" }, { ...env, VERCEL_ENV: "preview" },
+    { ...env, WOO_APPROVED_SUPABASE_URL: undefined }, { ...env, WOO_INGESTION_ENABLED: "false" }, { ...env, WOO_WORKER_SECRET: "short" },
     { ...env, WOO_WEBHOOK_SECRET: secret }])("fails closed for disabled/unsafe configuration %#", async configuration => {
     const deps = dependencies();
     expect((await handleWooRunner(request(), configuration, deps)).status).toBe(503);

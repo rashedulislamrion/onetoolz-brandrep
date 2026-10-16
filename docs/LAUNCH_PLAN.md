@@ -1,5 +1,7 @@
 # OneToolz BrandRep — build and live-release plan
 
+**Authoritative correction:** owner confirms `nwgdzzpcbqmfqujycpqk` is the production database. Earlier nonproduction labels and recommendations to replace it below are superseded. No synthetic/rollback test suites may run there; provision a separate test database for acceptance. See `PRODUCTION_HANDOFF.md`. Production-safe configuration support is now source-delivered; no activation claimed.
+
 Updated October 16, 2026. Current source implementation phase: **3 of 6 (in progress)**, not a percentage complete. Owner reports production setup is complete; prior phase-2 integration/acceptance observations below remain historical, not independently reverified. Phase 3 delivery and gaps are documented in `docs/REFERRAL_ATTRIBUTION.md`.
 
 Latest: Supabase nonproduction connection verified; accepted policy publication installed as `20261016114552`, prior six migrations untouched. Offline phase-4 calculation foundation is built in parallel; neither phase 3 nor phase 4 is complete. Rates/basis/payout preferences are administrator dashboard configuration, not owner-supplied development prerequisites. See `COMMISSION_ACCOUNTING.md` for installed/source boundaries and remaining integration.

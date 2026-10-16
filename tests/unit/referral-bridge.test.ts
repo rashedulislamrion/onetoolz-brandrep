@@ -116,9 +116,15 @@ describe("bridge environment isolation", () => {
     { APP_ENV: "unknown" }, { REFERRAL_APPROVED_SUPABASE_URL: "https://other.supabase.co" },
     { REFERRAL_BRIDGE_SECRET: "short" }, { WOO_WEBHOOK_SECRET: secret }, { WOO_WORKER_SECRET: secret },
     { REFERRAL_SUPABASE_SECRET_KEY: "sb_publishable_fixture" }, { NEXT_PUBLIC_SUPABASE_URL: "https://evil.test" },
-    { NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co", REFERRAL_APPROVED_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co" },
   ])("fails closed for unsafe configuration %j", change => expect(bridgeConfiguration({ ...env, ...change })).toBeNull());
   it("permits explicitly isolated nonproduction validation", () => {
     expect(bridgeConfiguration({ ...env, APP_ENV: "staging", SUPABASE_ENVIRONMENT: "nonproduction" })).not.toBeNull();
+  });
+  it("allows the owner-confirmed production project only in production runtime", () => {
+    const production = { ...env, NEXT_PUBLIC_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co", REFERRAL_APPROVED_SUPABASE_URL: "https://nwgdzzpcbqmfqujycpqk.supabase.co" };
+    expect(bridgeConfiguration(production)).not.toBeNull();
+    expect(bridgeConfiguration({ ...production, APP_ENV: "local", SUPABASE_ENVIRONMENT: "nonproduction" })).toBeNull();
+    expect(bridgeConfiguration({ ...production, APP_ENV: "staging", SUPABASE_ENVIRONMENT: "nonproduction" })).toBeNull();
+    expect(bridgeConfiguration({ ...production, VERCEL_ENV: "preview" })).toBeNull();
   });
 });

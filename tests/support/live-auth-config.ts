@@ -1,6 +1,10 @@
+import { PRODUCTION_DATABASE_URL } from "../../src/lib/database-environment.mts";
+
 export function liveAuthConfiguration(env: Record<string, string | undefined>) {
-  const ref = "nwgdzzpcbqmfqujycpqk";
-  if (env.RUN_LIVE_AUTH_TESTS !== "true" || env.E2E_SUPABASE_PROJECT_REF !== ref || env.APP_ENV !== "local" || env.SUPABASE_ENVIRONMENT !== "nonproduction") {
+  const ref = env.E2E_SUPABASE_PROJECT_REF ?? "";
+  if (env.RUN_LIVE_AUTH_TESTS !== "true" || !/^[a-z]{20}$/.test(ref) ||
+    `https://${ref}.supabase.co` === PRODUCTION_DATABASE_URL ||
+    env.APP_ENV !== "local" || env.SUPABASE_ENVIRONMENT !== "nonproduction") {
     throw new Error("Live Auth tests require explicit opt-in and the approved local/nonproduction project.");
   }
   if (env.NEXT_PUBLIC_SUPABASE_URL !== `https://${ref}.supabase.co`) throw new Error("Live Auth project URL mismatch.");

@@ -1,3 +1,5 @@
+import { databaseEnvironmentAllowed } from "./database-environment.mts";
+
 export type Environment = Record<string, string | undefined>;
 export type AuthConfiguration =
   | { ready: false; reason: string }
@@ -17,6 +19,7 @@ export function getAuthConfiguration(env: Environment): AuthConfiguration {
   if (env.VERCEL_ENV === "preview" && env.APP_ENV === "production") {
     return { ready: false, reason: "Production authentication is prohibited in preview deployments." };
   }
+  if (!databaseEnvironmentAllowed(env)) return { ready: false, reason: "This production database cannot be used in local, staging or preview environments." };
   const key = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "";
   if (!key.startsWith("sb_publishable_")) {
     return { ready: false, reason: "A Supabase publishable key is required. Secret keys are not accepted." };

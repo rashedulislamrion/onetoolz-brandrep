@@ -1,5 +1,7 @@
 # Administrator program settings and policy publication
 
+**Classification correction:** owner confirms `nwgdzzpcbqmfqujycpqk` is PRODUCTION. The installation/test actions below happened under an incorrect nonproduction assumption. Publication migration is already installed there; do not rerun it. No further synthetic fixture acceptance there. See `PRODUCTION_HANDOFF.md`; older classification statements are superseded.
+
 ## October 16, 2026: admin-controlled publication (installed on nonproduction)
 
 Commission values and payout rules are configured by authorized administrators in `/admin/settings`; asking the owner to supply fixed values is not a development prerequisite. No financial defaults are assumed.
