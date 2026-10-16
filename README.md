@@ -2,7 +2,7 @@
 
 ## GitHub handoff — OneToolz BrandRep
 
-Repository: `rashedulislamrion/onetoolz-brandrep`. Target domain: `brandrep.onetoolz.com`. Owner has requested resuming launch work. Connected Vercel team is Hobby; eligible commercial hosting access is required before deployment. No upgrade/purchase performed.
+Repository: `rashedulislamrion/onetoolz-brandrep`. Target domain: `brandrep.onetoolz.com`. The owner confirms Vercel hosting is already handled. Agent scope is code implementation, validation, commits and pushes to main—not hosting, DNS or account setup. Hosted financial functionality still requires separate integration and acceptance.
 
 The Revenue Engine public experience is implemented. Rebrand validation: 233 unit tests, 26 desktop/mobile browser tests, lint, typecheck, heuristic secret scan and production build passed; GitHub Actions for d1d1fad passed. This is not a live earnings or payout service. See `docs/LAUNCH_PLAN.md` for concrete release gates, remaining builds and required owner decisions; newest delivery status entries supersede historical notes below.
 

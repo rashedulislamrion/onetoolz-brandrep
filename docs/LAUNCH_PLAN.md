@@ -2,6 +2,8 @@
 
 Updated October 16, 2026. Current phase: **2 of 6**, not a percentage complete.
 
+**Ownership correction:** the user confirms Vercel hosting is already handled. Agent work is implementation, validation, commits and pushes to main. Earlier CLI observations below are historical only, not blockers or proof about the user's deployment. Do not resume hosting/DNS/account work unless specifically asked.
+
 ## Verified now
 
 - Revenue Engine release `d1d1fad`: GitHub Actions completed successfully. Local baseline: 233 unit tests, 26 desktop/mobile browser tests, lint/typecheck, build and heuristic secret scan passed.
@@ -18,7 +20,7 @@ Updated October 16, 2026. Current phase: **2 of 6**, not a percentage complete.
 
 Engineering: deploy existing Next.js source on an eligible commercial host; retain disabled auth/Woo flags and honest pre-launch copy. Use Node 24 and `npm run build`. Attach the custom domain only after verifying deployment ownership and the provider's exact DNS instructions. Preserve unrelated DNS records. Validate HTTPS, CSP/no-store headers, mobile layout, calculator, store links and disabled endpoint behavior. Retain a rollback deployment.
 
-Owner blocker: provide/authorize an eligible hosting team. Current Vercel Hobby is restricted to personal/noncommercial use according to Vercel pricing. Do not upgrade or incur charges automatically. If using another host, supply its deployment access and runtime/scheduler capabilities.
+Owner status: Vercel hosting is already handled, per user confirmation. No hosting access, plan change or alternative host is requested. Agent supplies validated source through Git; hosted checks remain distinct from source delivery.
 
 Exit: public site reachable on HTTPS with live smoke evidence. This gate does not open earning or approve accounts.
 
@@ -70,9 +72,9 @@ Exit: no placeholder financial data, no cross-account leaks, actual balances rec
 
 ## Immediate execution order
 
-1. Resolve eligible hosting access and deploy gate A; no commercial rules needed for an honest pre-launch page.
+1. Deliver tested changes through commits and pushes to main; the owner manages Vercel. Hosting setup is not a blocker for further development.
 2. In parallel, collect policy decisions and prepare production/auth security work for gate B.
 3. Move the accepted connector to an explicitly approved production configuration and close gate C.
 4. Build D → E → F in dependency order; wire real reporting progressively, then close G.
 
-No reliable calendar completion date exists until hosting, production credentials and commercial decisions are available. A public page, operational ingestion and a fully earning/paying platform are separate milestones.
+No reliable calendar completion date exists until production integration credentials and commercial decisions are available. A public page, operational ingestion and a fully earning/paying platform are separate milestones; owner-managed hosting does not block continued implementation.

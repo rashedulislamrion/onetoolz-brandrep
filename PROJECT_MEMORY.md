@@ -1,5 +1,10 @@
 # OneToolz Affiliate Platform — Planning Memory
 
+## Deployment ownership clarification — authoritative
+- User confirms Vercel hosting is already handled. Agent scope is implementation, validation, Git commits and ordinary pushes to main. Do not investigate/reconfigure hosting, DNS or accounts unless specifically requested.
+- Earlier CLI account observations do not describe the user's deployment and must not be treated as a development blocker. Hosting is user-reported complete, not independently verified by the agent.
+- Continue remaining application/backend work; distinguish shipped source from verified live financial functionality.
+
 ## Live-release request / connector installation — 2026-10-16 (supersedes older states)
 - User asks to make all live and plan remaining build; deployment work may resume, but do not purchase/upgrade, invent financial rules or transfer money.
 - Vercel CLI verified: connected rions-projects-5814501e team is Hobby; complete project list has no BrandRep. Commercial hosting eligibility blocks launch; no deployment/project creation/DNS change. Custom-domain request failed DNS locally; do not assume global absence or change records blindly.

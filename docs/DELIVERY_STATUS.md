@@ -1,5 +1,9 @@
 # Delivery status — 2026-10-16
 
+## Deployment ownership correction — supersedes hosting blockers below
+
+User confirms Vercel hosting is already handled. Agent delivers tested code through commits and pushes to main; no hosting/DNS/account work is requested. Earlier CLI account observations are not authoritative for the user's deployment and are not development blockers. Hosted functionality is not independently verified here. Current phase remains 2 of 6; remaining backend/integration/policy work is unchanged.
+
 ## Live-release request — latest authoritative checkpoint
 
 **Phase 2 of 6.** Owner requested making the platform live and planning the remaining build. This supersedes owner-only deployment responsibility; deployment work can resume, but purchases, unknown commercial policies and actual fund transfers are not authorized.
