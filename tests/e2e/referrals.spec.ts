@@ -14,3 +14,12 @@ test("public referrals fail closed without configured storage", async ({ request
   expect(disabled.headers()["set-cookie"]).toBeUndefined();
   expect(disabled.headers()["cache-control"]).toContain("no-store");
 });
+
+test("approved referral rules are public without implying live tracking", async ({ page, request }) => {
+  await page.goto("/program");
+  await expect(page.getByText(/Approved attribution rules: first-click credit within 7 days/)).toBeVisible();
+  await expect(page.getByText(/self-referrals are not allowed/)).toBeVisible();
+  const response = await request.post("/api/referrals/bridge", { data: { kind: "capture" } });
+  expect(response.status()).toBe(503);
+  expect(response.headers()["set-cookie"]).toBeUndefined();
+});

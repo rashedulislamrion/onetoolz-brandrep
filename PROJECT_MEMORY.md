@@ -1,5 +1,11 @@
 # OneToolz Affiliate Platform — Planning Memory
 
+## Approved attribution / evidence increment — newest
+- Owner approved no self-referrals, 7 days, FIRST-click credit. Encoded as first-click-7d-no-self-v1; no later-touch fallback for a self-referral winner. No commission rates/earning/payout rules approved.
+- Added signed inbound bridge /api/referrals/bridge and source migration 20261016170000_referral_evidence (depends on still-source-only 20261016120000 campaigns). Private append-only policy/receipts/touches/order decisions; first-touch window doesn't extend; verified existing Woo order and independently verified buyer token required.
+- Source only, NOT live: no migration installs, store plugin/consent cookie adapter, production credentials/flags or hosting changes. Requires secure buyer/store linking; guests/unlinked identities deny. SQL/concurrency and end-to-end acceptance still pending; docs/REFERRAL_BRIDGE.md is protocol/trust-boundary reference. Current phase 3/6 remains in progress, not phase 4 complete.
+- Final local validation: 339 unit tests, 32 desktop/mobile browser tests, full lint, TypeScript check, heuristic secret scan and production build passed. Early process launches were interrupted; direct-node final checks established results. No production fixture execution.
+
 ## Phase 3 source implementation — current
 - Owner reports production is set and requests next phase; owner manages Vercel. No remote setup or production fixture execution authorized/needed for this source increment.
 - Added protected campaign management, opaque immutable links, public fixed-store routing, additive source-only migration 20261016120000_referral_campaigns and pure explicit-policy attribution resolver. See docs/REFERRAL_ATTRIBUTION.md.

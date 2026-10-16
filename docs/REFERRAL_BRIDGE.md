@@ -1,0 +1,75 @@
+# Trusted referral bridge — inbound protocol v1
+
+## Status and trust boundary
+
+Implemented receiver: `POST /api/referrals/bridge`. This is **not a completed Woo plugin** or a public click collector. The approved policy is first-click / 7 days / no self-referrals. Neither new migration is installed by this increment. Keep `REFERRAL_BRIDGE_ENABLED=false` until database acceptance and a trusted store adapter are complete.
+
+The trusted store server must perform capture and checkout association. Never expose the signing secret, database secret or buyer bearer token in public scripts, query strings, logs or campaign URLs. The HMAC secret authorizes store assertions: anyone holding it is trusted to assert visitor continuity, consent and order ownership. A buyer token independently proves the supplied BrandRep user, but does not prove that user owns a Woo order. The adapter must verify that association. Do not treat an arbitrary signed claim as independent order/payment verification.
+
+The API has no permissive CORS support; it is not meant for cross-site browser calls. Body/HMAC limits do not replace deployment ingress rate limits, queue bounds and monitoring. Configure those before activation. No IP, user agent, email or full checkout payload is stored by the receiver.
+
+## Environment and migration order
+
+- Install `20261016120000_referral_campaigns.sql`, then `20261016170000_referral_evidence.sql` exactly once through the approved migration process. Woo and identity migrations are prerequisites. Do not replay previously installed migrations.
+- Supply a dedicated `REFERRAL_BRIDGE_SECRET` of 32–256 characters, independent of Woo webhook/worker secrets, and a server-only `REFERRAL_SUPABASE_SECRET_KEY`.
+- `REFERRAL_APPROVED_SUPABASE_URL` must exactly equal `NEXT_PUBLIC_SUPABASE_URL`. Production requires `APP_ENV=production`, `SUPABASE_ENVIRONMENT=production`, a distinct production project, and a non-preview deployment. The original nonproduction project is explicitly rejected in production mode.
+- Only then set `REFERRAL_BRIDGE_ENABLED=true`. This does not enable the Woo worker, establish checkout consent or activate commissions. Existing Woo production configuration support remains separate.
+
+## Envelope
+
+Content type is `application/json`; exact UTF-8 body bytes must be signed. Maximum body: 4096 bytes.
+
+Headers:
+
+- `x-brandrep-timestamp`: Unix seconds, 10 decimal digits; maximum clock difference 300 seconds.
+- `x-brandrep-request-id`: canonical lower-case UUID, generated once per event and reused on retries.
+- `x-brandrep-signature`: lower-case hex HMAC-SHA256 over `timestamp + "." + requestId + "." + rawBody`.
+- For order events only: `Authorization: Bearer <buyer Supabase access token>`. This is independently verified by the receiver, must identify `buyerUserId`, and must have confirmed email. Never use a service-role token as buyer proof.
+
+On retry retain identical body and request ID; regenerate timestamp/signature if necessary. Reusing an ID for a different body/kind is rejected by storage. Transport errors may mean the first request committed: retry idempotently, not with a new random event identity. Do not rewrite `orderAt` to retry time.
+
+## Capture body
+
+Exactly these keys, no extras:
+
+```json
+{
+  "kind": "capture",
+  "visitorHash": "<64 lowercase hex characters>",
+  "code": "<32 lowercase hex campaign code>",
+  "consent": true,
+  "policyVersion": "first-click-7d-no-self-v1"
+}
+```
+
+The store adapter must use a cryptographically random, unguessable visitor secret, derive a stable hash and capture only after consent. Do not derive identity from IP, email or fingerprinting. Store a protected first-party store cookie only after the approved consent flow; never extend the seven-day first-touch expiry on later visits. The database uses server time and preserves the first unexpired capture even if another valid campaign is supplied. On consent withdrawal stop sending events and clear store cookies; operational evidence retention/deletion still needs approved implementation before launch.
+
+No browser-supplied capture timestamp is accepted. A paused/suspended/role-revoked campaign cannot acquire new touches. Pausing a campaign stops acquisition but does not retroactively erase a valid touch; suspension/role loss prevents order credit.
+
+## Order body
+
+Exactly these keys:
+
+```json
+{
+  "kind": "order",
+  "visitorHash": "<same trusted visitor hash>",
+  "orderId": "<positive safe-integer order ID as decimal string>",
+  "orderAt": "2026-10-16T12:00:00.000Z",
+  "buyerUserId": "<verified lower-case BrandRep auth user UUID>"
+}
+```
+
+`orderAt` is the store-verified creation time, canonical UTC ISO with milliseconds, not payment/modification time. It cannot be future or pre-policy. The current redacted Woo snapshot does not carry creation/buyer identity; the trusted adapter must establish those facts independently. The order must already exist in `woo.orders` from its verified refresh path. Attribution does not prove eligibility or settlement.
+
+Guest/unlinked purchases cannot use this endpoint successfully. Implement secure BrandRep/store account linking before adoption; never substitute a client-supplied UUID or invent an unknown-buyer identity. Same-account self-referrals are rejected, including suspended former affiliates. Different-account abuse needs separate identity/fraud controls.
+
+## Responses and acceptance
+
+- `202`: authenticated event accepted or exact retry; no affiliate identity/credit amount is returned. This is not evidence of an attributed sale.
+- `400`: invalid event, policy, consent or timestamp data.
+- `401`: signature/freshness/buyer identity failure.
+- `413`/`415`: oversized body/unsupported media type.
+- `503`: disabled/unsafe configuration or persistence/identity-provider failure. Missing ingested order also retries through this path. Provider error details are not exposed.
+
+Before activation: run both SQL suites on disposable nonproduction storage; verify independent-session first-click/nonce/order races, rollback and least-privilege grants. Test the actual store checkout's consent/identity adapter and delayed Woo refresh retries. Only then accept an approved naturally occurring production order without synthetic checkout. Publish retention, consent/privacy and abuse controls; add monitoring without recording secrets or bodies. Commission accounting/rates and disbursements remain separate phases.

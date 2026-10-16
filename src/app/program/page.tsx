@@ -3,7 +3,7 @@ export const metadata = { title: "Program details" };
 const policies = [
   ["Commission structure", "Rates, calculation basis, currency and recurring-commission eligibility are not published. Calculator inputs are personal assumptions only."],
   ["Eligible products", "The main store is available to explore; the affiliate-eligible product and subscription list is not finalized."],
-  ["Attribution & cookies", "Referral tracking is not active. Attribution model, cookie duration, consent requirements and competing-referral rules await publication."],
+  ["Attribution & cookies", "Approved attribution rules: first-click credit within 7 days; self-referrals are not allowed. A later click does not replace or extend the original window. Tracking is not active yet; store integration, consent notices and acceptance remain required."],
   ["Validation & reversals", "Verified payment and order completion are planned eligibility checks. Validation holds, refund adjustments and reversal rules still require approved policy and implementation."],
   ["Payment methods & timing", "Payout methods, supported currencies, thresholds, fees and schedules are not approved. No withdrawals or payment dates are available."],
   ["Geographic eligibility", "Supported countries, residency requirements and tax documentation have not been finalized. Application review does not guarantee eligibility."],

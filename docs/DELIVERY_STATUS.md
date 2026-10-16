@@ -1,5 +1,11 @@
 # Delivery status — 2026-10-16
 
+## Approved attribution rules and evidence source — newest
+
+Owner approved first-click / 7 days / no self-referrals. Implemented canonical policy, self-referral winner rejection without later-click fallback, public rule copy, signed inbound bridge, and additive private evidence/order-decision migration. Neither referral migration is installed by this increment. No store-side cookie/consent/identity adapter or live order acceptance yet; no remote data/hosting/financial changes. Phase 3/6 remains in progress. See `docs/REFERRAL_BRIDGE.md` and latest `docs/REFERRAL_ATTRIBUTION.md` section. Commission rules remain unapproved; no earning/payout activation.
+
+Validation: 339 unit tests, 32 desktop/mobile browser tests, full lint, TypeScript check, heuristic secret scan and production build passed. SQL acceptance/concurrency and trusted store/live order acceptance are not covered by those results and remain pending. A test-only TypeScript inference error was corrected before the final successful build/checks.
+
 ## Phase 3 — latest source increment
 
 Owner reports production setup is complete. Implemented campaign/link-management source, fixed-store public routing, explicit-policy attribution resolver and additive referral migration. See `docs/REFERRAL_ATTRIBUTION.md` for scope and acceptance gaps. Phase 3 remains in progress: no cookie/click capture, trusted checkout bridge or order association is live from this increment. Migration is not installed; no remote database/store or hosting changes performed. Existing Woo production source restriction remains.

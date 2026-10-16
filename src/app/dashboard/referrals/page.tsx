@@ -22,6 +22,7 @@ export default async function Referrals({ searchParams }: { searchParams: Promis
   };
   return <section className="section content-page"><span className="eyebrow">PARTNER / REFERRALS</span>
     <h1>Your campaign links.</h1>
+    <p className="field-help">Approved rules: first-click credit, a 7-day window, and no self-referrals. Later clicks do not reset the window. These rules do not activate tracking or commissions by themselves.</p>
     <div className="notice"><strong>Link routing only — attribution is not activated</strong><p>Links open the OneToolz store. No referral cookies, click counts, order credit or commissions are recorded yet. Do not advertise these as earning links until the store integration and attribution policy are activated.</p></div>
     {params.notice && notices[params.notice] && <p className="notice" role="status">{notices[params.notice]}</p>}
     {error ? <p className="notice" role="alert">Campaign storage is unavailable or the referral migration is not installed. Creation is disabled.</p> : <>

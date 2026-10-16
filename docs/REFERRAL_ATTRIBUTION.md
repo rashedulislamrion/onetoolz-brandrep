@@ -1,5 +1,19 @@
 # Phase 3 — referral attribution
 
+## Latest increment: approved policy and trusted evidence source
+
+Owner approved **first-click credit, 7 days, no self-referrals** on October 16, 2026. Canonical version: `first-click-7d-no-self-v1` in `src/lib/referrals/policy.ts`. The seven-day period is exactly 604800 seconds from server capture; expiry is exclusive. Later clicks do not overwrite or extend an unexpired first touch. A self-referral winner is rejected, not reassigned to a later click. Effective time is installation of the policy migration, not a backdated program start.
+
+Added `20261016170000_referral_evidence.sql` after the campaign migration. It prepares private RLS-enabled, app-role-inaccessible policy, receipt, touch and order-decision tables. Policies/evidence/decisions are append-only. RPCs are service-role-only, serialize receipt/visitor/order handling, keep first touch, enforce expiry and suspension/role checks, reject conflicting replays and require an existing independently ingested Woo order. Association records evidence, **not** qualified conversions, payment settlement or money. Failed/missing-order attempts roll back and can retry; finalized unattributed decisions cannot be silently reassigned.
+
+`POST /api/referrals/bridge` implements the signed inbound protocol described in `docs/REFERRAL_BRIDGE.md`. It is disabled by default, rejects previews, requires a separately approved database origin and independent signing secret, bounds JSON bodies, verifies timestamp/nonce/HMAC, and persists only through privileged RPCs. Order assertions additionally require a verified buyer's Supabase access token and confirmed email; an arbitrary buyer UUID from Woo/browser metadata is insufficient. Guest/unlinked buyers are denied rather than assuming they are not affiliates. This prevents a same-account self-referral; alternate accounts or a dishonest trusted store remain abuse risks requiring identity/fraud controls.
+
+**Source-only:** neither referral migration has been installed by this agent. No store-side cookie/consent/identity adapter has been added to Woo, no anonymous click ingestion is exposed, and the existing public routing links still do not deliver evidence to the store. No live tracking or commissions are claimed. The owner-approved rules are shown on `/program` and the partner referral page, without an activation claim.
+
+`supabase/tests/referral_evidence.sql` provides rollback-only fixtures for first-touch preservation, retries/conflicts, no-consent rejection, verified-order gating, self-referrals, unknown visitors, suspension and role restrictions. PostgreSQL/database acceptance, true multi-session races, signed-in checkout and production order acceptance remain unexecuted. Existing validation numbers below describe the **previous** campaign increment; see delivery status for latest results.
+
+Latest local source validation passed: **339 unit tests, 32 desktop/mobile browser tests**, full lint, TypeScript check, heuristic secret scan and production build. Database behavior is not proven by mocked unit tests; do not install/activate without the separate SQL and integration acceptance above.
+
 ## Delivered source
 
 - `/dashboard/referrals`: approved-partner campaign creation, own-account list and pause/resume. Server actions require identity, approved affiliate role/status and same-origin mutation checks.
@@ -23,10 +37,10 @@ Campaign links currently provide routing only. They do **not** set referral cook
 
 Remaining Phase 3 requirements:
 
-1. Owner-approved duration, first/last precedence, coupon/cross-device policy, self-referral identity rules, channels and disclosure/consent language. Publish immutable effective versions; do not consume draft commission settings as policy.
+1. Duration/precedence/self-referral rules are now approved and encoded as above. Coupon/cross-device policy, channels and disclosure/consent language remain undecided. Do not consume draft commission settings as attribution or earning policy.
 2. Consent-aware store-side capture on `cu.onetoolz.com`, with an authenticated, tamper-resistant checkout bridge supporting the actual checkout implementation. A BrandRep-origin cookie cannot establish store checkout attribution by itself.
 3. Durable trusted click/touch evidence, retention/deletion and abuse controls. No anonymous click-write endpoint is shipped in this increment; the campaign cap is not a public ingress rate limiter.
-4. Authenticated order association with unique order constraints, immutable evidence/policy references, replay/conflict protection, known buyer identity and suspended-affiliate behavior. Do not trust browser or Woo metadata merely because it contains a partner code.
+4. Execute acceptance/install for the new authenticated order-association source, including unique-order concurrency, replay/conflict protection, known buyer identity and suspended-affiliate behavior. Connect the trusted store-side caller; do not trust browser or Woo metadata merely because it contains a partner code.
 5. Disposable database/concurrency acceptance and signed-in browser checks; approved naturally occurring production referral/order acceptance, with no synthetic production checkout.
 
 The existing Woo configuration still restricts ingestion to local/staging and its original nonproduction project. Production support requires an explicit isolated configuration change; an owner-reported setup does not change this source restriction. Phase 3 is **in progress**, not complete, until trusted checkout/order association is accepted. Commissions remain Phase 4; no payout authority or transfers are implied.

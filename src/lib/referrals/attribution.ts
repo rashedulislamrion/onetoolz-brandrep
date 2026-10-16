@@ -46,9 +46,13 @@ export function resolveAttribution(input: {
     uuid.test(touch.id) && uuid.test(touch.affiliateId) && uuid.test(touch.campaignId) &&
     touch.verified === true && touch.consent === true && touch.policyVersion === policy.version &&
     Number.isSafeInteger(touch.occurredAt) && touch.occurredAt >= 0 && touch.occurredAt <= orderAt &&
-    orderAt - touch.occurredAt < policy.windowSeconds * 1000 &&
-    (policy.selfReferral === "allow" || touch.affiliateId !== input.buyerAffiliateId));
+    orderAt - touch.occurredAt < policy.windowSeconds * 1000);
   eligible.sort((a, b) => a.occurredAt - b.occurredAt || a.id.localeCompare(b.id));
   const touch = policy.precedence === "first" ? eligible[0] : eligible.at(-1);
+  // Do not promote a later partner when the winning first click is a self
+  // referral. The winning identity is resolved before eligibility rejection.
+  if (touch && policy.selfReferral === "deny" && touch.affiliateId === input.buyerAffiliateId) {
+    return { attributed: false, reason: "unattributed" };
+  }
   return touch ? { attributed: true, touch, policyVersion: policy.version } : { attributed: false, reason: "unattributed" };
 }

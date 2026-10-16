@@ -1,5 +1,7 @@
 # OneToolz Affiliates
 
+Latest attribution increment: approved **first-click / 7 days / no self-referrals** rules, signed inbound server bridge and append-only referral/order-evidence migration are implemented in source. Store-side consent/identity integration and database/live acceptance are still pending; no tracking or money activation is claimed. See `docs/REFERRAL_BRIDGE.md` for protocol and migration requirements.
+
 ## Phase 3 source increment
 
 Owner reports production setup is complete. Campaign management and fixed-store routing are implemented at `/dashboard/referrals` and `/r/[code]`; the new referral migration is source-only and still needs installation/SQL acceptance. Links do not yet track clicks, set referral cookies, credit orders or earn commissions. See `docs/REFERRAL_ATTRIBUTION.md` for delivered scope and remaining activation work. No hosting configuration changes are requested.
