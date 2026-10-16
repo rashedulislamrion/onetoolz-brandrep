@@ -1,6 +1,6 @@
 # OneToolz BrandRep — build and live-release plan
 
-Updated October 16, 2026. Current phase: **2 of 6**, not a percentage complete.
+Updated October 16, 2026. Current source implementation phase: **3 of 6 (in progress)**, not a percentage complete. Owner reports production setup is complete; prior phase-2 integration/acceptance observations below remain historical, not independently reverified. Phase 3 delivery and gaps are documented in `docs/REFERRAL_ATTRIBUTION.md`.
 
 **Ownership correction:** the user confirms Vercel hosting is already handled. Agent work is implementation, validation, commits and pushes to main. Earlier CLI observations below are historical only, not blockers or proof about the user's deployment. Do not resume hosting/DNS/account work unless specifically asked.
 

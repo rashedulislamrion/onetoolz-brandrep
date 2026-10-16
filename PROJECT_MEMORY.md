@@ -1,5 +1,11 @@
 # OneToolz Affiliate Platform — Planning Memory
 
+## Phase 3 source implementation — current
+- Owner reports production is set and requests next phase; owner manages Vercel. No remote setup or production fixture execution authorized/needed for this source increment.
+- Added protected campaign management, opaque immutable links, public fixed-store routing, additive source-only migration 20261016120000_referral_campaigns and pure explicit-policy attribution resolver. See docs/REFERRAL_ATTRIBUTION.md.
+- Phase 3 IN PROGRESS: links route only; no cookies/click persistence/checkout bridge/order association. New migration NOT installed; SQL/concurrency and signed-in acceptance remain unverified. Existing Woo source still refuses production; do not silently bypass it. No money features activated.
+- Phase-3 local validation passed: lint/typecheck, 296 unit tests, heuristic secret scan, production build and 30 desktop/mobile browser tests. No remote database/store mutation; remaining policy/store bridge/association requirements in docs/REFERRAL_ATTRIBUTION.md.
+
 ## Deployment ownership clarification — authoritative
 - User confirms Vercel hosting is already handled. Agent scope is implementation, validation, Git commits and ordinary pushes to main. Do not investigate/reconfigure hosting, DNS or accounts unless specifically requested.
 - Earlier CLI account observations do not describe the user's deployment and must not be treated as a development blocker. Hosting is user-reported complete, not independently verified by the agent.

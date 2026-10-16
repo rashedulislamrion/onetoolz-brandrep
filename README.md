@@ -1,5 +1,9 @@
 # OneToolz Affiliates
 
+## Phase 3 source increment
+
+Owner reports production setup is complete. Campaign management and fixed-store routing are implemented at `/dashboard/referrals` and `/r/[code]`; the new referral migration is source-only and still needs installation/SQL acceptance. Links do not yet track clicks, set referral cookies, credit orders or earn commissions. See `docs/REFERRAL_ATTRIBUTION.md` for delivered scope and remaining activation work. No hosting configuration changes are requested.
+
 ## GitHub handoff — OneToolz BrandRep
 
 Repository: `rashedulislamrion/onetoolz-brandrep`. Target domain: `brandrep.onetoolz.com`. The owner confirms Vercel hosting is already handled. Agent scope is code implementation, validation, commits and pushes to main—not hosting, DNS or account setup. Hosted financial functionality still requires separate integration and acceptance.

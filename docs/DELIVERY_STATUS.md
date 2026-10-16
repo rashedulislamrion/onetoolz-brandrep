@@ -1,5 +1,11 @@
 # Delivery status — 2026-10-16
 
+## Phase 3 — latest source increment
+
+Owner reports production setup is complete. Implemented campaign/link-management source, fixed-store public routing, explicit-policy attribution resolver and additive referral migration. See `docs/REFERRAL_ATTRIBUTION.md` for scope and acceptance gaps. Phase 3 remains in progress: no cookie/click capture, trusted checkout bridge or order association is live from this increment. Migration is not installed; no remote database/store or hosting changes performed. Existing Woo production source restriction remains.
+
+Local validation passed: lint, typecheck, 296 unit tests, heuristic secret scan, production build and 30 desktop/mobile browser tests. Database/concurrency and signed-in/live referral-order acceptance remain unverified.
+
 ## Deployment ownership correction — supersedes hosting blockers below
 
 User confirms Vercel hosting is already handled. Agent delivers tested code through commits and pushes to main; no hosting/DNS/account work is requested. Earlier CLI account observations are not authoritative for the user's deployment and are not development blockers. Hosted functionality is not independently verified here. Current phase remains 2 of 6; remaining backend/integration/policy work is unchanged.
