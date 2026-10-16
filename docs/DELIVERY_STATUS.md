@@ -38,6 +38,8 @@ Account/application foundation and private ledger exist. Store ingestion is unde
 
 ## Latest delivery
 
+GitHub handoff completed: initial application commit pushed to `rashedulislamrion/onetoolz-brandrep`, branch `main`. Source, migrations, tests and CI workflow included; local environment files, credentials and generated artifacts excluded. Secret-pattern scan passed before publishing. User handles Vercel import/deployment. GitHub publication is not a live application deployment or database installation; hosted CI result is not yet verified.
+
 Rebranding validation: 219 unit tests, lint/typecheck, heuristic secret scan, production build and 24 desktop/mobile browser tests passed. Browser coverage includes no horizontal overflow, opportunity CTA navigation, expandable FAQ and reduced-motion behavior. This is a public-experience first pass; protected dashboards and financial functionality were not redesigned or completed.
 
 User changed release workflow to GitHub first, with Vercel deployment handled by the user. Current work is a visible public-experience redesign within Phase 2, not completion of attribution or finance phases. First pass implemented: opportunity-led home, animated journey artwork, main-store promotion, registration CTAs, native FAQs, mobile styling, reduced-motion handling, matching registration introduction and revised how-it-works/metadata. No earnings claims or invented rates. GitHub repository URL/access still needed; no remote or gh executable configured. No push or deployment claimed.
