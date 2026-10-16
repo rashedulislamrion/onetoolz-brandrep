@@ -45,4 +45,11 @@ do $$ begin
  if exists(select 1 from public.program_policies) then raise exception 'Nonadmin read accepted'; end if;
 end $$;
 reset role;
+-- Even an owner-context UPDATE must hit the append-only trigger.
+do $$ begin
+ begin
+  update public.program_policies set commission_bps=0;
+  raise exception 'Immutable policy changed';
+ exception when insufficient_privilege then null; end;
+end $$;
 rollback;

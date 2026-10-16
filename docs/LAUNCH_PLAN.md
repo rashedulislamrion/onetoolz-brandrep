@@ -2,6 +2,8 @@
 
 Updated October 16, 2026. Current source implementation phase: **3 of 6 (in progress)**, not a percentage complete. Owner reports production setup is complete; prior phase-2 integration/acceptance observations below remain historical, not independently reverified. Phase 3 delivery and gaps are documented in `docs/REFERRAL_ATTRIBUTION.md`.
 
+Latest: Supabase nonproduction connection verified; accepted policy publication installed as `20261016114552`, prior six migrations untouched. Offline phase-4 calculation foundation is built in parallel; neither phase 3 nor phase 4 is complete. Rates/basis/payout preferences are administrator dashboard configuration, not owner-supplied development prerequisites. See `COMMISSION_ACCOUNTING.md` for installed/source boundaries and remaining integration.
+
 **Ownership correction:** the user confirms Vercel hosting is already handled. Agent work is implementation, validation, commits and pushes to main. Earlier CLI observations below are historical only, not blockers or proof about the user's deployment. Do not resume hosting/DNS/account work unless specifically asked.
 
 ## Verified now
@@ -52,7 +54,7 @@ Exit: approved affiliate referral maps to an eligible order under a versioned po
 
 Publish immutable effective-dated commercial policies distinct from drafts. Build exact-decimal/minor-unit calculation and transactional idempotent ledger postings; validation holds, releases, rejection reasons, partial/full refunds, chargebacks and reversals. Preserve paid history and record explained adjustments. Add affiliate-safe reads and ledger reconciliation; never compute balances from the public calculator.
 
-Owner decisions: actual rates; flat/percentage model; currency; eligible products/subscriptions; recurring rules; discounts/tax/shipping basis; hold period; refund/chargeback treatment; policy cutover rules.
+Admin dashboard configuration: rates, currency, minimum payout, hold days, review cadence, supported percentage basis and refund treatment. Publication explicitly limits scope to all-products one-time orders and immediate cutover; expanding models/recurrence needs separately implemented controls. Rounding and qualification/release semantics still need versioned admin controls before activation; no request for hard-coded owner rates is required.
 
 Exit: order/replay/refund scenarios reconcile exactly with immutable policy references, no floating-point money arithmetic and no unauthorized balance access.
 

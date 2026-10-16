@@ -1,5 +1,13 @@
 # Delivery status — 2026-10-16
 
+## Database connection and next-phase arithmetic — newest
+
+Verified active Supabase connection and installed only the accepted policy-publication migration on nonproduction as `20261016114552`. Six prior migrations were not rerun. Rollback rehearsal and installed RPC authorization/retry/conflict/precision acceptance passed, including immutability denial. Postchecks: policies/drafts/test users zero; application count unchanged at one; Woo orders zero; least-privilege grants and RLS verified. No actual policy, checkout, earning or transfer created. Referral migrations remain uninstalled and their acceptance is still pending.
+
+Added offline phase-4 commission arithmetic/policy selection foundation: exact bigint minor units, complete effective-dated history, explicit rounding, admin-selected rate/basis/refunds and cumulative reversal reconciliation. It does not post journals or complete phase 3/4. See `COMMISSION_ACCOUNTING.md`. Production connection, signed-in publication and independent-session publication race acceptance remain unverified. Hosting untouched.
+
+Validation: 405 unit tests, 32 desktop/mobile browser tests, full lint/typecheck, heuristic secret-pattern scan and final production build passed. Database acceptance was real rollback SQL against nonproduction, not unit mocks; no production fixtures or store requests.
+
 ## Approved attribution rules and evidence source — newest
 
 Owner approved first-click / 7 days / no self-referrals. Implemented canonical policy, self-referral winner rejection without later-click fallback, public rule copy, signed inbound bridge, and additive private evidence/order-decision migration. Neither referral migration is installed by this increment. No store-side cookie/consent/identity adapter or live order acceptance yet; no remote data/hosting/financial changes. Phase 3/6 remains in progress. See `docs/REFERRAL_BRIDGE.md` and latest `docs/REFERRAL_ATTRIBUTION.md` section. Commission rules remain unapproved; no earning/payout activation.

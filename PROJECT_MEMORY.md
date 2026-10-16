@@ -1,4 +1,8 @@
-# Admin policy correction — October 16, 2026
+# Database connection and commission foundation — October 16, 2026
+
+Supabase connection verified ACTIVE; sole visible project nwgdzzpcbqmfqujycpqk remains nonproduction. Six prior migrations untouched. Policy publication installed as 20261016114552 after rollback rehearsal; installed RPC acceptance passed, synthetic fixtures rolled back, policies/drafts 0, application count unchanged 1, Woo orders 0. Local filename aligned to assigned version: do not replay. No production connection/activation or hosting changes. Referral migrations remain source-only/unaccepted; independent-session publication races outstanding. Added offline nonposting commission arithmetic/policy selection with 41 focused tests; no earning worker or transfers. See docs/COMMISSION_ACCOUNTING.md for next integration gates. Admin—not owner-provided constants—configures commercial rules.
+
+# Admin policy correction — October 16, 2026 (earlier source checkpoint)
 
 Commission rates, basis and payout settings are admin-dashboard configuration, not values the owner must supply before coding can continue. `/admin/settings` now has source for explicit publication of the latest draft into immutable policy versions with admin/MFA authorization, immediate effective time, retry/conflict protection and no financial defaults. Migration `20261016190000_program_policy_publication.sql` and rollback SQL acceptance are source-only/unexecuted. Published policies are not yet consumed by calculations or transfers; do not claim active earnings. Existing attribution integration blockers remain separate from configurable business rules.
 

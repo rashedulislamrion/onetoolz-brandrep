@@ -1,14 +1,14 @@
 # Administrator program settings and policy publication
 
-## October 16, 2026: admin-controlled publication (source delivered, not installed)
+## October 16, 2026: admin-controlled publication (installed on nonproduction)
 
 Commission values and payout rules are configured by authorized administrators in `/admin/settings`; asking the owner to supply fixed values is not a development prerequisite. No financial defaults are assumed.
 
 The publication editor requires the latest saved draft, an explicit currency precision (0–6), calculation basis (discounted item totals excluding tax/shipping, or full order total including them), refund treatment (proportional against that basis, or full reversal on any refund), explanation and confirmation. Published scope is visibly limited to all products, one-time commission per eligible order; renewal commissions and product overrides are unsupported. Cadence authorizes review, not payment execution.
 
-`F:\My VS Project\OneToolz Affiliates\supabase\migrations\20261016190000_program_policy_publication.sql` adds immutable policy snapshots, admin AAL2 read/publication, immediate server effective timestamps, stale-editor detection, identical-request retries, precision checks and serialized publication. **This migration is source-only; it has not been installed or accepted against a database.** Do not rerun the installed draft migration or blanket-push unrelated migrations. Missing publication storage disables publishing while leaving draft editing independent.
+`F:\My VS Project\OneToolz Affiliates\supabase\migrations\20261016114552_program_policy_publication.sql` adds immutable policy snapshots, admin AAL2 read/publication, immediate server effective timestamps, stale-editor detection, identical-request retries, precision checks and serialized publication. **Installed and accepted on nonproduction `nwgdzzpcbqmfqujycpqk`; do not rerun it.** The filename matches the version assigned by tracked migration tooling. No production installation occurred. Missing publication storage disables publishing while leaving draft editing independent.
 
-`F:\My VS Project\OneToolz Affiliates\supabase\tests\program_policy_publication.sql` supplies rollback-only SQL acceptance, still unexecuted. Genuine independent-session publication races and signed-in admin browser acceptance remain unverified. Unit mocks do not establish SQL correctness.
+`F:\My VS Project\OneToolz Affiliates\supabase\tests\program_policy_publication.sql` supplies rollback-only SQL acceptance, now passed in rehearsal and against the installed RPC. An additional owner-context immutable-update test passed. Fixtures rolled back; actual draft and policy tables remain empty. Genuine independent-session publication races and signed-in admin browser acceptance remain unverified. Unit mocks do not establish SQL correctness.
 
 Publication stores approved rules, but the order worker/ledger do not consume them yet. That integration must select policy by trusted order creation time, retain the immutable policy version on each calculation, implement exact currency rounding/refund behavior, and never silently recalculate historical entries. No commission calculation or money movement is activated by this increment.
 
@@ -36,4 +36,4 @@ Latest validation: check/build exit 0, 166 unit tests and 20 desktop/mobile anon
 
 ## Earlier draft-only delivery limitations (superseded where noted above)
 
-The original draft-only increment lacked publication. Publication source now exists as described above, but installation and live acceptance remain pending. Product/affiliate overrides, actual refund/reversal calculations, payout authorization, banking details and payment execution remain unimplemented. Neither drafts nor published policies are yet consumed by the order worker or ledger. Saving a draft never activates earnings or sends funds.
+The original draft-only increment lacked publication. Publication is now installed on nonproduction as described above; production and signed-in browser acceptance remain pending. Product/affiliate overrides, persisted refund/reversal postings, payout authorization, banking details and payment execution remain unimplemented. Offline arithmetic is documented in `COMMISSION_ACCOUNTING.md`; neither drafts nor published policies are yet consumed by the order worker or ledger. Saving a draft never activates earnings or sends funds.
