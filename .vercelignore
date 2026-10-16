@@ -1,0 +1,12 @@
+.git
+.local
+.env*
+.vercel
+node_modules
+.next
+coverage
+playwright-report
+test-results
+*.pem
+*.key
+*.tsbuildinfo
