@@ -1,5 +1,14 @@
 # OneToolz Affiliate Platform — Planning Memory
 
+## Live-release request / connector installation — 2026-10-16 (supersedes older states)
+- User asks to make all live and plan remaining build; deployment work may resume, but do not purchase/upgrade, invent financial rules or transfer money.
+- Vercel CLI verified: connected rions-projects-5814501e team is Hobby; complete project list has no BrandRep. Commercial hosting eligibility blocks launch; no deployment/project creation/DNS change. Custom-domain request failed DNS locally; do not assume global absence or change records blindly.
+- d1d1fad GitHub Actions verified success. Existing Supabase remains healthy nonproduction, connection reverified, session swim; one preexisting application preserved.
+- INSTALLED tracked Woo migrations 20261016080655 ingestion + 20261016080727 discovery. Renamed local files/references. Both installed RPC rollback acceptance suites passed; cleanup verified zero Woo events/jobs/orders/attempts, pristine singleton checkpoint, five RLS tables. Migration history six entries. Do not rerun migrations or previously completed concurrency tests.
+- No production store reads/mutations, credentials injection or flag changes. Production support requires explicit code/config design: existing Woo code only accepts local/staging + fixed nonproduction project.
+- Concrete gates/remaining implementation/owner inputs in docs/LAUNCH_PLAN.md. Current phase 2/6; public pre-launch can precede accounts, ingestion and earning/payout activation.
+- Post-install lint/typecheck, 233 unit tests and heuristic secret scan passed; emitter regressions validate new filenames. Runtime unchanged, so production build/browser suites not rerun this increment.
+
 ## Revenue Engine redesign — 2026-10-16
 - Phase 2 of 6 remains current. Added dark financial design system, Next-hosted typography, illustrative hero, four-stage flow, independent scenario calculator, viewport reveals and reduced-motion support.
 - Protected dashboard now presents unavailable metric cards/campaign/payout states; affiliate authorization unchanged. Application grouped visually; existing submission schema/RPC untouched. Program checklist documents unpublished rules.

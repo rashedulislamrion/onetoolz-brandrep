@@ -1,4 +1,4 @@
--- PREPARED, NOT APPLIED. Requires woo_ingestion. No order bodies or ledger writes.
+-- Installed on nonproduction 2026-10-16 as 20261016080727. Requires woo_ingestion; no ledger writes.
 begin;
 create table woo.discovery (
  singleton boolean primary key default true check(singleton),

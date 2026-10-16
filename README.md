@@ -2,13 +2,13 @@
 
 ## GitHub handoff — OneToolz BrandRep
 
-Repository: `rashedulislamrion/onetoolz-brandrep`. The owner will import this repository into Vercel and configure `brandrep.onetoolz.com`.
+Repository: `rashedulislamrion/onetoolz-brandrep`. Target domain: `brandrep.onetoolz.com`. Owner has requested resuming launch work. Connected Vercel team is Hobby; eligible commercial hosting access is required before deployment. No upgrade/purchase performed.
 
-The opportunity-focused public experience is implemented. Latest local validation: 219 unit tests, 24 desktop/mobile browser tests, lint, typecheck, heuristic secret scan and production build passed. This is not a live earnings or payout service yet. See `docs/DELIVERY_STATUS.md` for the six-phase roadmap and current blockers; its newest entries supersede historical setup notes below.
+The Revenue Engine public experience is implemented. Rebrand validation: 233 unit tests, 26 desktop/mobile browser tests, lint, typecheck, heuristic secret scan and production build passed; GitHub Actions for d1d1fad passed. This is not a live earnings or payout service. See `docs/LAUNCH_PLAN.md` for concrete release gates, remaining builds and required owner decisions; newest delivery status entries supersede historical notes below.
 
 For Vercel, use the repository root, Next.js framework, Node.js 24 and the existing `npm run build` script. Configure environment variables in Vercel, never in Git. `.env.example` documents configuration names, not production-ready values. Do not upload `.env.local` or copy local nonproduction credentials into a public production configuration. Public pages can render without credentials; account access requires a correctly configured authentication environment. Woo ingestion, commissions and payouts are not activated by importing this repository. Configure the domain and exact authentication redirects only after verifying the deployment.
 
-Current shipped/remaining checklist: `F:\My VS Project\OneToolz Affiliates\docs\DELIVERY_STATUS.md`. Woo intake and worker remain disabled; the ingestion migration is prepared/rehearsed, not installed. No live order sync or commissions are running.
+Current shipped/remaining checklist: `F:\My VS Project\OneToolz Affiliates\docs\DELIVERY_STATUS.md`. Woo intake/worker remain disabled; ingestion 20261016080655 and discovery 20261016080727 are installed and accepted on nonproduction only. No live order sync or commissions are running. Do not rerun installed migrations.
 
 Phase 1 foundation of the approved independent affiliate platform. This is **not production-ready** and does not calculate commissions, connect to WooCommerce, or process payouts.
 

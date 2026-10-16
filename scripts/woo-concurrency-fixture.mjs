@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 // A dedicated schema makes committed fixtures visible to independent sessions.
 const schema = "woo_acceptance_20261015";
 const bodies = [];
-for (const file of ["20261015150000_woo_ingestion.sql", "20261015170000_woo_discovery.sql"]) {
+for (const file of ["20261016080655_woo_ingestion.sql", "20261016080727_woo_discovery.sql"]) {
   const source = await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url), "utf8");
   const match = source.replaceAll("\r\n", "\n").match(/^--[^\n]*\nbegin;\n([\s\S]*)\ncommit;\s*$/);
   if (!match) throw new Error(`Unexpected migration wrapper: ${file}`);

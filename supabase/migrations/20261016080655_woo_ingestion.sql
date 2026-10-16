@@ -1,4 +1,4 @@
--- PREPARED, NOT APPLIED. Single approved store; no financial or ledger access.
+-- Installed on nonproduction 2026-10-16 as 20261016080655. No financial or ledger access.
 begin;
 create schema woo;
 revoke all on schema woo from public,anon,authenticated,service_role;

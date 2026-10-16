@@ -15,8 +15,8 @@ describe("combined Woo rollback rehearsal", () => {
     expect(sql.trim()).toMatch(/rollback;\s*select to_regnamespace\('woo'\) is null as rollback_verified;$/);
     expect(sql).toContain("Rehearsal requires absent woo schema");
     for (const file of [
-      "supabase/migrations/20261015150000_woo_ingestion.sql",
-      "supabase/migrations/20261015170000_woo_discovery.sql",
+      "supabase/migrations/20261016080655_woo_ingestion.sql",
+      "supabase/migrations/20261016080727_woo_discovery.sql",
       "supabase/tests/woo_ingestion.sql",
       "supabase/tests/woo_discovery.sql",
     ]) {

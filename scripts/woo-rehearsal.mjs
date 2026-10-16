@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 // Emit SQL only; never connect, apply a migration, or load credentials.
 // Exact wrapper removal deliberately fails closed if a source wrapper changes.
 const sources = [
-  ["supabase/migrations/20261015150000_woo_ingestion.sql", "commit;"],
-  ["supabase/migrations/20261015170000_woo_discovery.sql", "commit;"],
+  ["supabase/migrations/20261016080655_woo_ingestion.sql", "commit;"],
+  ["supabase/migrations/20261016080727_woo_discovery.sql", "commit;"],
   ["supabase/tests/woo_ingestion.sql", "rollback;"],
   ["supabase/tests/woo_discovery.sql", "rollback;"],
 ];

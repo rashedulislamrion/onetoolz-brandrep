@@ -1,5 +1,17 @@
 # Delivery status — 2026-10-16
 
+## Live-release request — latest authoritative checkpoint
+
+**Phase 2 of 6.** Owner requested making the platform live and planning the remaining build. This supersedes owner-only deployment responsibility; deployment work can resume, but purchases, unknown commercial policies and actual fund transfers are not authorized.
+
+Installed this increment: Woo ingestion **20261016080655** and discovery **20261016080727** individually through tracked migration tooling on the existing nonproduction project. Installed RPC acceptance passed for both suites with rollback-only fixtures. Cleanup: zero events/jobs/orders/attempts; one pristine discovery checkpoint; five RLS-enabled Woo tables; existing application count unchanged at one. Local migration filenames aligned to assigned versions. Do not rerun these migrations or repeat completed independent-session races as outstanding.
+
+Post-install source validation passed: lint, typecheck, 233 unit tests and heuristic secret scan, including renamed-migration SQL emitter regressions. No application runtime source changed; production build/browser suites were not repeated this increment (previous rebrand build and 26 browser tests passed).
+
+Live status: **not deployed**. Verified Vercel account access and complete project list; only connected team is Hobby, with no BrandRep project. Eligible commercial hosting is needed; no upgrade or charge performed. Custom-domain HTTPS failed DNS resolution in this environment; inspect authoritative records before editing DNS. Rebrand commit d1d1fad GitHub Actions passed. No Woo requests, production-data ingestion, auth environment relabeling, financial activation or DNS modifications.
+
+Remaining plan and release gates: `docs/LAUNCH_PLAN.md`. Immediate blockers: eligible hosting access, dedicated approved production database/auth security and policies, secure Woo credentials/data-handling approval. Production Woo support is not implemented: current code is deliberately staging/nonproduction-only, not a switch to bypass. Attribution → commissions → disbursements → real reporting remain substantive builds.
+
 ## Revenue Engine rebrand — current increment
 
 **Phase 2 of 6 — Woo integration and deployment** remains current. Built: dark financial design system, self-hosted font setup, revenue hero preview, referral flow, scenario calculator, motion/reduced-motion, protected command-center unavailable states, application grouping and policy-readiness checklist. See `docs/REVENUE_ENGINE.md` for explicit integration gaps.
@@ -21,11 +33,11 @@ Current phase: **Phase 2 of 6 — Woo integration and deployment**. Phase number
 | Phase | Built | Remaining / live status |
 | --- | --- | --- |
 | 1. Accounts and administration | Accounts, applications, MFA, admin review, settings drafts, private ledger foundation | Database foundation installed on nonproduction; public deployment, signed-in settings acceptance and auth launch controls remain |
-| 2. Woo integration and deployment (CURRENT) | Receiver, queue, refresh worker, reconciliation, discovery; rollback and independent-session database acceptance | Install connector migrations, choose/connect hosting, securely provision keys, deploy receiver/scheduler and verify real ingestion |
+| 2. Woo integration and deployment (CURRENT) | Receiver, queue, refresh worker, reconciliation, discovery; connector migrations installed on nonproduction; installed-RPC and previous independent-session acceptance | Eligible hosting, approved production configuration, secure credentials, receiver/scheduler deployment and real ingestion acceptance |
 | 3. Referral attribution | Not implemented | Referral links, click/cookie handling, order-to-affiliate association and attribution rules |
 | 4. Commission accounting | Ledger foundation only | Publish approved policies, calculate earnings, holds, refunds/reversals, expose balances |
 | 5. Disbursements | Settings drafts only | Payout requests, review, payment recording, reconciliation and audit |
-| 6. Dashboards and launch | Basic protected workspaces | Real metrics, operational monitoring, recovery controls and full end-to-end launch acceptance |
+| 6. Dashboards and launch | Premium protected unavailable-state workspace | Real metrics, operational monitoring, recovery controls and full end-to-end launch acceptance |
 
 Deployment inspection: no Git remote, hosting project link/configuration or Vercel executable found in this workspace. Tool discovery did not return a usable Vercel deployment integration. Hosting provider/account and application domain must be resolved before publishing. This is not a request to repeat completed database tests.
 
