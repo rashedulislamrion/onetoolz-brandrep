@@ -1,4 +1,16 @@
-# Delivery status — 2026-10-15
+# Delivery status — 2026-10-16
+
+## Revenue Engine rebrand — current increment
+
+**Phase 2 of 6 — Woo integration and deployment** remains current. Built: dark financial design system, self-hosted font setup, revenue hero preview, referral flow, scenario calculator, motion/reduced-motion, protected command-center unavailable states, application grouping and policy-readiness checklist. See `docs/REVENUE_ENGINE.md` for explicit integration gaps.
+
+Installed/live: no database, store, activation, DNS or hosting changes. Deployment remains user-managed. Dashboard presentation is not completed reporting or accounting. Application server actions and stored fields are unchanged; structured country/channel/niche and versioned terms/privacy consent remain pending tracked schema changes and published policies.
+
+Validation: production build, lint/typecheck, 233 unit tests, 26 desktop/mobile browser tests and heuristic secret-pattern scan passed. Added projection boundary tests and protected dashboard authorization/unavailable-state tests. Signed-in hosted visual/save acceptance is not covered by these anonymous browser runs. Existing Vite config-format warning remains nonblocking.
+
+Hosted CI baseline verified using GitHub Actions API: prior commit `b793c78` completed successfully in run `38837066180`. This does not establish CI for the new redesign commit.
+
+Remaining/blockers: accepted Woo migrations still need tracked nonproduction installation and installed-RPC acceptance; credentials, production-data authorization and hosted receiver/scheduler/live acceptance remain outstanding. Attribution, commissions, payouts and real reporting remain phases 3–6. Hosted signed-in acceptance and commercial policy approval are required before launch.
 
 ## Overall result
 

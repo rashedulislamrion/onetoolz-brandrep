@@ -4,8 +4,8 @@ test("public landing page is responsive and truthful", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   const response = await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("earning opportunity.");
-  await expect(page.getByText(/Income is not guaranteed/)).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Your Revenue.");
+  await expect(page.getByText(/Income is not guaranteed/).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Explore the OneToolz store" })).toHaveAttribute("href", "https://cu.onetoolz.com");
   await expect(page.getByText("Pre-launch", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -20,9 +20,29 @@ test("opportunity journey supports registration, FAQs and reduced motion", async
   expect(await page.locator(".opportunity-art").evaluate(element => getComputedStyle(element).animationName)).toBe("none");
   await page.getByText("Can I start earning today?", { exact: true }).click();
   await expect(page.getByText(/Not yet. The program is in pre-launch/)).toBeVisible();
-  await page.getByRole("link", { name: "Start my partner journey" }).click();
+  await page.getByRole("link", { name: "Apply to Earn →", exact: true }).first().click();
   await expect(page).toHaveURL(/\/register$/);
   await expect(page.getByRole("heading", { name: "Your next chapter starts here." })).toBeVisible();
+});
+
+test("calculator uses explicit assumptions, not invented program rates", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Explore the Rewards" }).click();
+  await expect(page).toHaveURL(/#calculator$/);
+  const calculator = page.locator("#calculator");
+  await expect(calculator.locator("output")).toHaveText("—");
+  const commission = calculator.getByLabel("Assumed commission per qualifying sale");
+  await expect(commission).toHaveValue("");
+  await commission.fill("10");
+  await expect(calculator.locator("output")).toHaveText("50.00");
+  await calculator.getByLabel("Projection period").selectOption("yearly");
+  await expect(calculator.locator("output")).toHaveText("600.00");
+  await calculator.getByLabel("Expected monthly referred visitors").fill("-1");
+  await expect(calculator.locator("output")).toHaveText("—");
+  await calculator.getByLabel("Expected monthly referred visitors").fill("100");
+  await commission.fill("");
+  await expect(calculator.locator("output")).toHaveText("—");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test("navigation and disabled auth make setup state clear", async ({ page }) => {

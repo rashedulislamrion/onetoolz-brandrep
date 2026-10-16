@@ -1,5 +1,13 @@
 # OneToolz Affiliate Platform — Planning Memory
 
+## Revenue Engine redesign — 2026-10-16
+- Phase 2 of 6 remains current. Added dark financial design system, Next-hosted typography, illustrative hero, four-stage flow, independent scenario calculator, viewport reveals and reduced-motion support.
+- Protected dashboard now presents unavailable metric cards/campaign/payout states; affiliate authorization unchanged. Application grouped visually; existing submission schema/RPC untouched. Program checklist documents unpublished rules.
+- No real data fabricated. No database install, Woo activation, store mutation or Vercel deployment performed. Owner retains deployment responsibility.
+- Integration scope/limitations recorded in docs/REVENUE_ENGINE.md; structured application fields and policy consent remain pending schema and policy approval.
+- Validation passed: 233 unit tests, 26 desktop/mobile browser tests, lint/typecheck, heuristic secret-pattern scan and production build. Signed-in hosted acceptance remains unverified. Existing Vite format warning is nonblocking.
+- Prior published commit b793c78 Actions run 38837066180 verified successful via GitHub API. New redesign CI must be checked separately after push.
+
 ## GitHub repository selected
 - Initial application commit successfully pushed to origin/main. Remote configured to the user-provided repository; subsequent work can use normal non-force pushes. No Vercel deployment or database changes. Hosted Actions result unverified.
 - User supplied rashedulislamrion/onetoolz-brandrep. Remote read succeeded and returned no refs (empty repository). Git credential manager is available; gh is not required.
