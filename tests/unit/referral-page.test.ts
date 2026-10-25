@@ -1,24 +1,25 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 
-const { access, from, select, order, limit } = vi.hoisted(() => ({
-  access: vi.fn(), from: vi.fn(), select: vi.fn(), order: vi.fn(), limit: vi.fn(),
+const { access, from, select, order, limit, rpc } = vi.hoisted(() => ({
+  access: vi.fn(), from: vi.fn(), select: vi.fn(), order: vi.fn(), limit: vi.fn(), rpc: vi.fn(),
 }));
 vi.mock("@/lib/auth/access", () => ({ requireAccess: access }));
 vi.mock("@/components/submit-button", () => ({ SubmitButton: ({ children }: { children: string }) => children }));
-vi.mock("@/app/dashboard/referrals/actions", () => ({ createCampaign: vi.fn(), setCampaignActive: vi.fn() }));
+vi.mock("@/app/dashboard/referrals/actions", () => ({ createCampaign: vi.fn(), setCampaignActive: vi.fn(), generateStoreLink: vi.fn(), revokeStoreLink: vi.fn() }));
 import Referrals from "@/app/dashboard/referrals/page";
 
 describe("referral workspace", () => {
   beforeEach(() => {
-    vi.clearAllMocks(); access.mockResolvedValue({ client: { from } }); from.mockReturnValue({ select });
+    vi.clearAllMocks(); access.mockResolvedValue({ client: { from, rpc }, user: { id: "11111111-2222-4333-8444-555555555555" } }); from.mockReturnValue({ select });
     select.mockReturnValue({ order }); order.mockReturnValue({ limit }); limit.mockResolvedValue({ data: [], error: null });
+    rpc.mockResolvedValue({ data: [{ active: false, created_at: null }], error: null });
     vi.stubEnv("AUTH_ENABLED", "true"); vi.stubEnv("APP_ENV", "production"); vi.stubEnv("VERCEL_ENV", "production");
     vi.stubEnv("SUPABASE_ENVIRONMENT", "production"); vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "https://example.supabase.co");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "sb_publishable_fixture"); vi.stubEnv("APP_ORIGIN", "https://brandrep.onetoolz.com");
   });
   afterEach(() => vi.unstubAllEnvs());
-  const render = async (notice?: string) => renderToStaticMarkup(await Referrals({ searchParams: Promise.resolve({ notice }) }));
+  const render = async (notice?: string, token?: string) => renderToStaticMarkup(await Referrals({ searchParams: Promise.resolve({ notice, token }) }));
   it("denies access before reading campaigns", async () => {
     access.mockRejectedValueOnce(new Error("denied")); await expect(render()).rejects.toThrow("denied");
     expect(from).not.toHaveBeenCalled(); expect(access).toHaveBeenCalledWith("affiliate");
@@ -41,5 +42,30 @@ describe("referral workspace", () => {
     expect(html).toContain(`https://brandrep.onetoolz.com/r/${"a".repeat(32)}`);
     expect(html).toContain("&lt;script&gt;test&lt;/script&gt;"); expect(html).not.toContain("<script>test</script>");
     expect(html).toContain("Pause"); expect(html).toContain("Resume"); expect(html).toContain("does not yet track orders or earn commissions");
+  });
+  it("renders the store-link section with no active link and no token shown", async () => {
+    const html = await render();
+    expect(html).toContain("Link your OneToolz store account"); expect(html).toContain("My Account → BrandRep");
+    expect(html).toContain("No active store link"); expect(html).toContain("Generate store-link token");
+    expect(html).toContain("Your BrandRep User ID"); expect(html).toContain("11111111-2222-4333-8444-555555555555");
+    expect(html).not.toContain("brlink_"); expect(rpc).toHaveBeenCalledWith("store_link_status");
+  });
+  it("shows an active link status with its creation date and a revoke control", async () => {
+    rpc.mockResolvedValue({ data: [{ active: true, created_at: "2026-10-26T01:00:00.000Z" }], error: null });
+    const html = await render();
+    expect(html).toContain("Store account link is"); expect(html).toContain("active"); expect(html).toContain("2026-10-26");
+    expect(html).toContain("Revoke store link"); expect(html).not.toContain("brlink_");
+  });
+  it("displays a freshly generated token exactly once, and ignores malformed token params", async () => {
+    const token = `brlink_${"a".repeat(64)}`;
+    const html = await render(undefined, token);
+    expect(html).toContain(token); expect(html).toContain("will not be shown again");
+    const ignored = await render(undefined, "brlink_not-a-token");
+    expect(ignored).not.toContain("brlink_not-a-token"); expect(ignored).not.toContain("will not be shown again");
+  });
+  it("disables linking when store-link storage is unavailable without leaking errors", async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: "private" } });
+    const html = await render();
+    expect(html).toContain("Store-link storage is unavailable"); expect(html).not.toContain("Generate store-link token"); expect(html).not.toContain("private");
   });
 });

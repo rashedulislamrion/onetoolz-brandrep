@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { bridgeConfiguration, receiveReferralBridge } from "@/lib/referrals/bridge";
+import { hashToken, isStoreLinkToken } from "@/lib/referrals/link-token";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -14,6 +15,16 @@ export async function POST(request: Request) {
   return receiveReferralBridge(request, {
     secret: config.secret,
     buyerIdentity: async token => {
+      // A brlink_ store-link token resolves through its stored hash. The
+      // plaintext is a bearer credential the buyer pasted into the store;
+      // resolution is service-role only and revoked links resolve to null.
+      // The downstream association RPC still re-checks confirmed email.
+      if (isStoreLinkToken(token)) {
+        const tokenHash = hashToken(token);
+        if (!tokenHash) return null;
+        const { data, error } = await client.rpc("resolve_store_link", { p_token_hash: tokenHash });
+        return error || typeof data !== "string" ? null : data;
+      }
       const { data, error } = await client.auth.getUser(token);
       return error || !data.user?.email_confirmed_at ? null : data.user.id;
     },

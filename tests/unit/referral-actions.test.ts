@@ -7,7 +7,8 @@ vi.mock("@/lib/auth/access", () => ({ requireAccess }));
 vi.mock("@/lib/auth/mutation", () => ({ requireMutationOrigin }));
 vi.mock("next/navigation", () => ({ redirect }));
 vi.mock("next/cache", () => ({ revalidatePath }));
-import { createCampaign, setCampaignActive } from "@/app/dashboard/referrals/actions";
+import { createHash } from "node:crypto";
+import { createCampaign, generateStoreLink, revokeStoreLink, setCampaignActive } from "@/app/dashboard/referrals/actions";
 
 const code = "a".repeat(32);
 const form = () => {
@@ -48,6 +49,30 @@ describe("referral server actions", () => {
     await expect(setCampaignActive(value)).rejects.toThrow("notice=updated");
     expect(rpc).toHaveBeenCalledWith("set_referral_campaign_active", { p_code: code, p_active: active === "true" });
     expect(requireAccess).toHaveBeenCalledWith("affiliate"); expect(requireMutationOrigin).toHaveBeenCalledOnce();
+  });
+  it("generates a store link storing only the hash of the token it shows once", async () => {
+    let target = "";
+    try { await generateStoreLink(); } catch (error) { target = (error as Error).message.replace("redirect:", ""); }
+    expect(target.startsWith("/dashboard/referrals?token=brlink_")).toBe(true);
+    const token = target.split("token=")[1];
+    expect(token).toMatch(/^brlink_[a-f0-9]{64}$/);
+    expect(requireMutationOrigin).toHaveBeenCalledOnce(); expect(requireAccess).toHaveBeenCalledWith("affiliate");
+    expect(requireMutationOrigin.mock.invocationCallOrder[0]).toBeLessThan(rpc.mock.invocationCallOrder[0]);
+    expect(rpc).toHaveBeenCalledWith("create_store_link", { p_token_hash: createHash("sha256").update(token).digest("hex") });
+    expect(rpc.mock.calls[0][1].p_token_hash).not.toContain(token);
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/referrals");
+  });
+  it("does not show a token when store-link creation fails", async () => {
+    rpc.mockResolvedValue({ error: { message: "private" } });
+    await expect(generateStoreLink()).rejects.toThrow("notice=linkFailed");
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+  it("revokes the caller's store link through its RPC", async () => {
+    await expect(revokeStoreLink()).rejects.toThrow("redirect:/dashboard/referrals?notice=linkRevoked");
+    expect(rpc).toHaveBeenCalledWith("revoke_store_link");
+    expect(revalidatePath).toHaveBeenCalledWith("/dashboard/referrals");
+    rpc.mockResolvedValue({ error: { message: "private" } });
+    await expect(revokeStoreLink()).rejects.toThrow("notice=linkFailed");
   });
   it("rejects forged status and hides storage errors", async () => {
     const value = new FormData(); value.set("code", code); value.set("active", "1");

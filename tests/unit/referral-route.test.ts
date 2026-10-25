@@ -17,10 +17,10 @@ describe("public referral routing", () => {
     createClient.mockReturnValue({ rpc }); rpc.mockResolvedValue({ data: "/shop/", error: null });
   });
   afterEach(() => { vi.unstubAllEnvs(); vi.clearAllMocks(); });
-  it("uses only the fixed store path; ignores redirect query and sets no cookies", async () => {
+  it("uses only the fixed store path, appends br_ref, ignores redirect query and sets no cookies", async () => {
     const response = await request();
     expect(response.status).toBe(302);
-    expect(response.headers.get("location")).toBe("https://cu.onetoolz.com/shop/");
+    expect(response.headers.get("location")).toBe(`https://cu.onetoolz.com/shop/?br_ref=${code}`);
     expect(response.headers.get("cache-control")).toBe("no-store");
     expect(response.headers.get("referrer-policy")).toBe("no-referrer");
     expect(response.headers.get("set-cookie")).toBeNull();

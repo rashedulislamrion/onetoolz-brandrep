@@ -5,6 +5,11 @@ test("referral management requires identity", async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?notice=setup/);
 });
 
+// A successful redirect (302 to https://cu.onetoolz.com<path>?br_ref=<code>)
+// cannot be exercised here: this suite runs with authentication/storage
+// disabled, so every well-formed code takes the 503 path below. The exact
+// Location, including the br_ref handoff parameter, is asserted in
+// tests/unit/referral-route.test.ts.
 test("public referrals fail closed without configured storage", async ({ request }) => {
   const malformed = await request.get("/r/invalid", { maxRedirects: 0 });
   expect(malformed.status()).toBe(404);

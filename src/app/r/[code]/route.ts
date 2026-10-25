@@ -25,11 +25,15 @@ export async function GET(_request: Request, { params }: { params: Promise<{ cod
     if (error) return unavailable(503);
     const destination = typeof data === "string" ? storeDestination(data) : null;
     if (!destination) return unavailable(404);
-    const response = NextResponse.redirect(destination, 302);
+    // Hand the campaign code to the store as br_ref. The store-side connector
+    // (docs/STORE_CONNECTOR.md) reads it, applies its consent flow, sets its
+    // own first-party cookie and signs evidence to the bridge. The hub itself
+    // still sets no cookies and writes no click evidence on this route.
+    const target = new URL(destination);
+    target.searchParams.set("br_ref", code);
+    const response = NextResponse.redirect(target.href, 302);
     response.headers.set("Cache-Control", "no-store");
     response.headers.set("Referrer-Policy", "no-referrer");
-    // Deliberately no cookies, tracking query parameters or click writes until
-    // policy approval and an authenticated Woo checkout bridge exist.
     return response;
   } catch { return unavailable(503); }
 }
