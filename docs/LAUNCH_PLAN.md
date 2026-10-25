@@ -4,7 +4,7 @@
 
 Updated October 16, 2026. Current source implementation phase: **3 of 6 (in progress)**, not a percentage complete. Owner reports production setup is complete; prior phase-2 integration/acceptance observations below remain historical, not independently reverified. Phase 3 delivery and gaps are documented in `docs/REFERRAL_ATTRIBUTION.md`.
 
-Latest: Supabase nonproduction connection verified; accepted policy publication installed as `20261016114552`, prior six migrations untouched. Offline phase-4 calculation foundation is built in parallel; neither phase 3 nor phase 4 is complete. Rates/basis/payout preferences are administrator dashboard configuration, not owner-supplied development prerequisites. See `COMMISSION_ACCOUNTING.md` for installed/source boundaries and remaining integration.
+Latest: Supabase connection verified (project is production-classified — see correction above); accepted policy publication installed as `20261016114552`, prior six migrations untouched. Offline phase-4 calculation foundation is built in parallel; neither phase 3 nor phase 4 is complete. Rates/basis/payout preferences are administrator dashboard configuration, not owner-supplied development prerequisites. See `COMMISSION_ACCOUNTING.md` for installed/source boundaries and remaining integration.
 
 **Ownership correction:** the user confirms Vercel hosting is already handled. Agent work is implementation, validation, commits and pushes to main. Earlier CLI observations below are historical only, not blockers or proof about the user's deployment. Do not resume hosting/DNS/account work unless specifically asked.
 
@@ -13,7 +13,7 @@ Latest: Supabase nonproduction connection verified; accepted policy publication 
 - Revenue Engine release `d1d1fad`: GitHub Actions completed successfully. Local baseline: 233 unit tests, 26 desktop/mobile browser tests, lint/typecheck, build and heuristic secret scan passed.
 - Vercel CLI access works. Connected team `rions-projects-5814501e` reports `hobby`; its complete three-project list has no BrandRep project. No project creation, purchase or deployment performed.
 - A live HTTPS request to `brandrep.onetoolz.com` failed name resolution from the execution environment. This is not authoritative proof of globally missing DNS; inspect the domain's DNS zone before changing it.
-- Existing Supabase project `nwgdzzpcbqmfqujycpqk` is ACTIVE_HEALTHY and remains nonproduction. Do not relabel it production or copy its credentials into public production configuration.
+- Existing Supabase project `nwgdzzpcbqmfqujycpqk` is ACTIVE_HEALTHY and is the owner-confirmed PRODUCTION database (see authoritative correction above). Its publishable configuration belongs only in the production runtime; never copy its credentials into local, staging or preview configuration, and never run test fixtures against it.
 - Six tracked migrations are installed: identity, bootstrap, ledger, settings, Woo ingestion `20261016080655`, Woo discovery `20261016080727`. Do not rerun them on this project.
 - Installed ingestion and discovery RPC acceptance passed with rollback-only fixtures. Postcheck: events/jobs/orders/attempts all zero, pristine singleton discovery checkpoint, all five Woo tables RLS-enabled, existing application count unchanged at one. No live store requests or financial postings.
 - Local Woo credentials and activation attestations are absent. Connector code currently permits local/staging plus the fixed nonproduction project only; changing an environment switch cannot safely turn it into a production connector.
@@ -30,9 +30,9 @@ Exit: public site reachable on HTTPS with live smoke evidence. This gate does no
 
 ### B. Accounts and application review (phase 1 closure)
 
-Engineering: provision a distinct production Supabase project; review/install migrations in dependency order on that new empty project, not blanket-push to the existing database. Configure production-only publishable credentials, exact APP_ORIGIN and callback redirects; isolate preview/staging credentials. Verify email delivery/confirmation, reset/recovery, admin bootstrap, AAL2 review and signed-in settings save/reload. Add durable signup/reset abuse protection and review provider limits. Add structured country/channel/niche fields through tracked RPC/schema changes and policy-version acceptance after policies exist.
+Engineering: the production Supabase project already exists (`nwgdzzpcbqmfqujycpqk`, seven migrations installed — do not blanket-push or replay them). Provision a SEPARATE disposable test project for migration/fixture acceptance; review/install new migrations on the test project first, then on production through the tracked process. Configure production-only publishable credentials, exact APP_ORIGIN and callback redirects; isolate preview/staging credentials. Verify email delivery/confirmation, reset/recovery, admin bootstrap, AAL2 review and signed-in settings save/reload. Add durable signup/reset abuse protection and review provider limits. Add structured country/channel/niche fields through tracked RPC/schema changes and policy-version acceptance after policies exist.
 
-Owner inputs: production environment ownership/region/retention approval, verified administrator identity, support address, approved terms/privacy notices and geographic eligibility. Never paste secrets in chat.
+Owner inputs: separate test-project provisioning, verified administrator identity, support address, approved terms/privacy notices and geographic eligibility. Never paste secrets in chat.
 
 Exit: genuine hosted application submission persists pending; MFA admin review persists; account isolation/revocation/recovery checks pass. No automatic application approval.
 

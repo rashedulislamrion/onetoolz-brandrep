@@ -1,5 +1,7 @@
 # Disposable concurrency rehearsal
 
+**Classification correction (2026-10-16): any reference below to a nonproduction project concerns `nwgdzzpcbqmfqujycpqk`, owner-confirmed PRODUCTION. Do not repeat fixture/concurrency procedures against it; use a separate test database. See `docs/PRODUCTION_HANDOFF.md`.**
+
 Nonproduction only. This procedure clones the **installed migration** into a dedicated schema, not the real ledger. Only postgres may access the clone. Never disable immutable triggers or delete journals to clean up the real ledger.
 
 1. Assert `to_regnamespace('ledger_test_20261015') is null` and that applied migration `20261015135651` exists with nonempty statements.

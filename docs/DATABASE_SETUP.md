@@ -1,5 +1,7 @@
 # Phase 2A — identity and applications
 
+**Classification correction (2026-10-16):** the project described below as "verified nonproduction" is `nwgdzzpcbqmfqujycpqk`, owner-confirmed PRODUCTION. The migration and rollback tests recorded below ran under that mistaken label. Do not rerun them there; future SQL acceptance requires a separate test project. See `PRODUCTION_HANDOFF.md`.
+
 ## Status
 
 Applied to the verified nonproduction Supabase project on 2026-10-15 through the authorized management connection. The prepared identity_rls.sql assertions passed in a rollback transaction. All five tables have RLS enabled and no direct authenticated INSERT/UPDATE/DELETE grants. Test users, applications and history were verified absent afterward. These SQL tests do not cover actual browser MFA, concurrency, or the entire planned security matrix.

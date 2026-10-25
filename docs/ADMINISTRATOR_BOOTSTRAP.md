@@ -21,7 +21,7 @@ After a successful rollback-only rehearsal, the migration was applied through th
 
 ## Controlled execution procedure
 
-1. Verify nonproduction project identity, migration history and the absence of existing administrators.
+1. Verify the target project's identity and classification (the installed project, `nwgdzzpcbqmfqujycpqk`, is PRODUCTION — a grant there is a real production grant), migration history and the absence of existing administrators.
 2. Confirm the applied bootstrap version is present in history. The local filename is aligned with the provider-assigned version. Do not rerun either applied migration.
 3. Have the intended account complete real MFA enrollment. Independently verify its UUID and record explicit authorization to make that account an administrator.
 4. As the trusted database operator, call `public.bootstrap_initial_administrator` with that UUID, authorization reference, and a substantive reason. Never embed user-supplied strings directly into SQL; use bound parameters or a reviewed SQL execution tool.

@@ -14,7 +14,7 @@ The Revenue Engine public experience is implemented. Rebrand validation: 233 uni
 
 For Vercel, use the repository root, Next.js framework, Node.js 24 and the existing `npm run build` script. Configure environment variables in Vercel, never in Git. `.env.example` documents configuration names, not production-ready values. Do not upload `.env.local` or copy local nonproduction credentials into a public production configuration. Public pages can render without credentials; account access requires a correctly configured authentication environment. Woo ingestion, commissions and payouts are not activated by importing this repository. Configure the domain and exact authentication redirects only after verifying the deployment.
 
-Current shipped/remaining checklist: `F:\My VS Project\OneToolz Affiliates\docs\DELIVERY_STATUS.md`. Woo intake/worker remain disabled; ingestion 20261016080655 and discovery 20261016080727 are installed and accepted on nonproduction only. No live order sync or commissions are running. Do not rerun installed migrations.
+Current shipped/remaining checklist: `F:\My VS Project\OneToolz Affiliates\docs\DELIVERY_STATUS.md`. Woo intake/worker remain disabled; ingestion 20261016080655 and discovery 20261016080727 are installed on the production-classified project `nwgdzzpcbqmfqujycpqk` (installed 2026-10-16 under a mistaken nonproduction label — see docs/PRODUCTION_HANDOFF.md; do not rerun them and do not run fixture suites there). No live order sync or commissions are running. Do not rerun installed migrations.
 
 Phase 1 foundation of the approved independent affiliate platform. This is **not production-ready** and does not calculate commissions, connect to WooCommerce, or process payouts.
 
@@ -56,7 +56,7 @@ Authentication uses server-only Supabase clients, HttpOnly cookies, raw-origin c
 - `user_roles(user_id, role)` readable only under reviewed RLS.
 - `affiliates(user_id, status)` with `approved` as the active affiliate status.
 
-Identity/application and administrator-bootstrap migrations are applied to nonproduction. Missing tables, denied access, or absent assignments block dashboard access. User-editable metadata never grants a role. Admin access additionally requires AAL2. MFA UI and application review exist, but no real administrator has been provisioned. Initial grants require a separately authorized database operator workflow.
+Identity/application and administrator-bootstrap migrations are applied to the production-classified project `nwgdzzpcbqmfqujycpqk` (applied under a mistaken nonproduction label; see docs/PRODUCTION_HANDOFF.md). Missing tables, denied access, or absent assignments block dashboard access. User-editable metadata never grants a role. Admin access additionally requires AAL2. MFA UI and application review exist, but no real administrator has been provisioned. Initial grants require a separately authorized database operator workflow.
 
 ## Implemented routes
 
@@ -71,7 +71,7 @@ Protected workspaces: `/dashboard`, `/admin`, `/admin/applications`. These displ
 - Pre-launch robots metadata disables indexing; it is not access control. Do not publicly deploy while legal notices and signup controls are incomplete.
 - Nonce CSP is set for dynamic pages, with no framing and no shared response cache. Styles permit inline styling; development alone permits script eval for dev tooling.
 - Nonproduction/production separation flags are guardrails, not proof that a URL belongs to the intended project. Operators must verify project ownership and isolation.
-- No durable app-level rate limiter, CAPTCHA, or MFA recovery is implemented yet. Roles, RLS, audit history and MFA UI exist; live signed-in MFA/review acceptance remains incomplete. Authentication is disabled by default and enabled only in the configured local nonproduction environment.
+- No durable app-level rate limiter, CAPTCHA, or MFA recovery is implemented yet. Roles, RLS, audit history and MFA UI exist; live signed-in MFA/review acceptance remains incomplete. Authentication is disabled by default; locally it may only be enabled against a dedicated nonproduction test project — never the production project.
 - No financial fields, Woo API credentials, privileged Supabase keys, or production resources are configured.
 - The secret-pattern checker is a heuristic. Add managed repository secret scanning before production.
 - GitHub CI is a local workflow definition only until a repository is created and connected; branch protection and hosted CI have not been configured.
@@ -92,8 +92,8 @@ Identity/application SQL and `/apply` UI are implemented and database security s
 
 ### Hosted database checkpoint
 
-Private ledger increment: migration **20261015135651** is applied to nonproduction. Operator-only posting, immutable journal checks, rollback SQL assertions and isolated multi-session concurrency tests passed. No currencies/accounts/balances were seeded in the actual ledger and no application financial access is enabled. See `F:\My VS Project\OneToolz Affiliates\docs\LEDGER_FOUNDATION.md`. Do not rerun this migration.
-The identity/application migration is now applied to the verified nonproduction project (version 20261015061714). The prepared SQL security tests passed and fixtures were rolled back. Earlier statements saying the migration is unapplied are historical. Do not rerun it. See the updated DATABASE_SETUP document. No real administrator has been provisioned.
+Private ledger increment: migration **20261015135651** is applied to the production-classified project (see docs/PRODUCTION_HANDOFF.md). Operator-only posting, immutable journal checks, rollback SQL assertions and isolated multi-session concurrency tests passed. No currencies/accounts/balances were seeded in the actual ledger and no application financial access is enabled. See `F:\My VS Project\OneToolz Affiliates\docs\LEDGER_FOUNDATION.md`. Do not rerun this migration.
+The identity/application migration is now applied to the production-classified project (version 20261015061714; applied under a mistaken nonproduction label — see docs/PRODUCTION_HANDOFF.md). The prepared SQL security tests passed and fixtures were rolled back. Earlier statements saying the migration is unapplied are historical. Do not rerun it. See the updated DATABASE_SETUP document. No real administrator has been provisioned.
 
 Administrator-bootstrap migration version **20261015102213** is also applied and its rollback-only test suite passed. Neither migration grants a real administrator automatically. See `F:\My VS Project\OneToolz Affiliates\docs\ADMINISTRATOR_BOOTSTRAP.md`.
 

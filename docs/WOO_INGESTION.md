@@ -1,8 +1,8 @@
-# WooCommerce ingestion — nonproduction installed, disabled
+# WooCommerce ingestion — installed on the production-classified database, disabled
 
 ## Latest checkpoint — October 16, 2026
 
-Supersedes all historical unapplied/unexecuted states below: tracked ingestion **20261016080655** and discovery **20261016080727** installed individually on confirmed nonproduction project nwgdzzpcbqmfqujycpqk. Local migration filenames match API-assigned versions. Both installed-function acceptance suites passed in rollback transactions. Postcheck: zero events/jobs/orders/attempts, one pristine discovery checkpoint, five RLS-enabled tables; preexisting application count unchanged at one. No store requests, deployment, production credentials or switch changes. Earlier seven independent-session concurrency pairs already passed; not repeated here.
+Supersedes all historical unapplied/unexecuted states below: tracked ingestion **20261016080655** and discovery **20261016080727** installed individually on project nwgdzzpcbqmfqujycpqk — owner-confirmed PRODUCTION, installed under a mistaken nonproduction label (see docs/PRODUCTION_HANDOFF.md; do not rerun, and no further fixture suites may run there). Local migration filenames match API-assigned versions. Both installed-function acceptance suites passed in rollback transactions. Postcheck: zero events/jobs/orders/attempts, one pristine discovery checkpoint, five RLS-enabled tables; preexisting application count unchanged at one. No store requests, deployment, production credentials or switch changes. Earlier seven independent-session concurrency pairs already passed; not repeated here.
 
 Next: eligible commercial hosting, dedicated approved production environment and production-specific configuration support, credentials/data handling approval, scheduler/monitoring and approved live read-only acceptance. Current connector intentionally remains local/staging plus fixed nonproduction database only. See `docs/LAUNCH_PLAN.md`; do not bypass gates or relabel the existing database.
 

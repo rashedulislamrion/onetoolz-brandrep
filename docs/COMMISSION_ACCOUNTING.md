@@ -4,7 +4,7 @@
 
 ## Delivered
 
-Admin publication is installed only on the existing nonproduction Supabase project `nwgdzzpcbqmfqujycpqk`, tracked as `20261016114552_program_policy_publication.sql`. Six prior migrations were not replayed. Full rollback rehearsal and installed RPC acceptance passed: admin AAL2 publication, identical retry, stale conflict, precision failure, direct-write denial, AAL1/nonadmin denial and immutable-update denial. Postcheck: zero policies/drafts/test users, one unchanged application, zero Woo orders; RLS enabled, anonymous publication and authenticated direct insert denied. No real policy was published.
+Admin publication is installed only on the production-classified Supabase project `nwgdzzpcbqmfqujycpqk` (installed under a mistaken nonproduction label; see correction above), tracked as `20261016114552_program_policy_publication.sql`. Six prior migrations were not replayed. Full rollback rehearsal and installed RPC acceptance passed: admin AAL2 publication, identical retry, stale conflict, precision failure, direct-write denial, AAL1/nonadmin denial and immutable-update denial. Postcheck: zero policies/drafts/test users, one unchanged application, zero Woo orders; RLS enabled, anonymous publication and authenticated direct insert denied. No real policy was published.
 
 `F:\My VS Project\OneToolz Affiliates\src\lib\ledger\commission.ts` is an offline, non-posting arithmetic module:
 
@@ -23,7 +23,7 @@ The existing redacted Woo order snapshot lacks verified creation time and net it
 
 Next accounting increments: admin-versioned rounding and eligibility/hold semantics; verified order/refund basis extraction and settlement qualification; private persisted calculation snapshots referencing published versions; transactional idempotent journal posting, independent-session races and refund/chargeback/recovery reconciliation; holds/releases and affiliate-safe reads. No live rates are needed from the owner: these are admin dashboard rules. Payout providers/authorization remain separate and no transfers are enabled.
 
-Independent-session publication races and signed-in admin browser publication are not verified by the rollback SQL suite. Production database/runtime connection is not established; only the previously approved nonproduction project is available through the connected account. Hosting was not inspected or changed.
+Independent-session publication races and signed-in admin browser publication are not verified by the rollback SQL suite. Deployed runtime connection to the production database is not established; only management access to the production-classified project is available through the connected account. Hosting was not inspected or changed.
 
 ## Validation
 

@@ -13,10 +13,10 @@ The suite uses one desktop worker, no retries, and disables browser traces/scree
 - `RUN_LIVE_AUTH_TESTS=true`
 - `APP_ENV=local`
 - `SUPABASE_ENVIRONMENT=nonproduction`
-- `E2E_SUPABASE_PROJECT_REF=nwgdzzpcbqmfqujycpqk`
+- `E2E_SUPABASE_PROJECT_REF=<ref of a SEPARATE disposable test project>` — **never `nwgdzzpcbqmfqujycpqk`: that project is PRODUCTION (owner-confirmed 2026-10-16) and the harness code rejects it. An earlier version of this document named the production project here in error.**
 - `NEXT_PUBLIC_SUPABASE_URL` matching that project's HTTPS origin exactly
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for that project (available to the application through its existing local configuration)
-- `E2E_SUPABASE_SECRET_KEY` containing a privileged `sb_secret_` key for that nonproduction project only
+- `E2E_SUPABASE_SECRET_KEY` containing a privileged `sb_secret_` key for that separate test project only
 
 Inject the privileged key securely into the test runner's environment. Do not paste it into chat, commit it, use a `NEXT_PUBLIC` name, or put it in production app configuration. The Playwright configuration does not load `.env.local` into the runner; its explicit opt-in variables must be injected. Build first with `npm run build`.
 

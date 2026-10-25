@@ -1,5 +1,19 @@
 # Delivery status — 2026-10-16
 
+# Delivery status — 2026-10-26
+
+## Phase 3 hub-side increment — newest
+
+Built (source only; nothing installed, deployed or activated): `/r/[code]` now hands the campaign to the store as `?br_ref=<code>` on the 302 Location (hub still sets no cookies). Buyer store-link tokens solve bridge buyer identity without a Supabase session at order time — `brlink_` + 64 hex tokens generated on `/dashboard/referrals`, shown once, stored only as SHA-256 hashes; new source-only migration `20261026010000_referral_store_links.sql` adds private `referral.store_links`, a revoke-only guard trigger, and `create_store_link` / `revoke_store_link` / `resolve_store_link` (service-role) / `store_link_status` RPCs, with a rollback-only SQL suite (acceptance still pending on a separate test database). The bridge resolves `brlink_` bearers through that RPC and keeps the Supabase session path otherwise. `docs/STORE_CONNECTOR.md` documents the full store-plugin protocol; `docs/REFERRAL_BRIDGE.md` buyer-proof sections updated. Remaining for Phase 3: build/install the store plugin, accept and install referral migrations (campaigns, evidence, store links) on test DB then production, provision bridge secrets/flags, and accept one approved naturally occurring production order. Validation: 436 unit tests (was 411), lint, typecheck, secret scan and production build all passed.
+
+
+# Delivery status — 2026-10-25
+
+## Documentation classification fix — newest
+
+Audited every current-guidance document against the authoritative production correction below. `docs/LIVE_AUTH_TESTING.md` still named the production project `nwgdzzpcbqmfqujycpqk` as the live-auth test target; corrected to a separate-test-project placeholder with an explicit prohibition. Present-tense "installed on nonproduction" claims corrected in README, LAUNCH_PLAN, WOO_INGESTION, PROGRAM_SETTINGS, COMMISSION_ACCOUNTING and this file's current-state table; REFERRAL_BRIDGE production-project rule corrected to match the code guard; correction banners added to LEDGER_FOUNDATION, DATABASE_SETUP and the concurrency runbooks. Historical dated entries remain as a log under their banners. No code/schema/data/activation changes. HEAD verification before the fix: 411 unit tests, lint, typecheck, secret scan and production build all passed. Phase 3 remains in progress; next build is the store-side Woo referral adapter.
+
+
 ## Production classification correction — authoritative newest
 
 Owner confirms connected project `nwgdzzpcbqmfqujycpqk` is PRODUCTION. Earlier nonproduction labels below are incorrect; prior fixture tests occurred under that mistake. Current work performed only read-only production audit and source changes: production-aware auth/Woo/referral guards, exact Woo database approval, worker prerequisites and live-auth production fixture denial. Seven migrations and 17 RLS-enabled tables verified; drafts/policies/orders zero; referral tables absent. No production writes or activation this increment. See `PRODUCTION_HANDOFF.md` for requirements and next implementation gates. Phase 3 and phase 4 are not complete.
@@ -60,8 +74,8 @@ Current phase: **Phase 2 of 6 — Woo integration and deployment**. Phase number
 
 | Phase | Built | Remaining / live status |
 | --- | --- | --- |
-| 1. Accounts and administration | Accounts, applications, MFA, admin review, settings drafts, private ledger foundation | Database foundation installed on nonproduction; public deployment, signed-in settings acceptance and auth launch controls remain |
-| 2. Woo integration and deployment (CURRENT) | Receiver, queue, refresh worker, reconciliation, discovery; connector migrations installed on nonproduction; installed-RPC and previous independent-session acceptance | Eligible hosting, approved production configuration, secure credentials, receiver/scheduler deployment and real ingestion acceptance |
+| 1. Accounts and administration | Accounts, applications, MFA, admin review, settings drafts, private ledger foundation | Database foundation installed on the production-classified project (mislabeled nonproduction at install time); public deployment, signed-in settings acceptance and auth launch controls remain |
+| 2. Woo integration and deployment (CURRENT) | Receiver, queue, refresh worker, reconciliation, discovery; connector migrations installed on the production-classified project; installed-RPC and previous independent-session acceptance | Eligible hosting, approved production configuration, secure credentials, receiver/scheduler deployment and real ingestion acceptance |
 | 3. Referral attribution | Not implemented | Referral links, click/cookie handling, order-to-affiliate association and attribution rules |
 | 4. Commission accounting | Ledger foundation only | Publish approved policies, calculate earnings, holds, refunds/reversals, expose balances |
 | 5. Disbursements | Settings drafts only | Payout requests, review, payment recording, reconciliation and audit |
@@ -78,7 +92,7 @@ Account/application foundation and private ledger exist. Store ingestion is unde
 | Component | Code | Hosted/operational state | Remaining acceptance |
 | --- | --- | --- | --- |
 | Auth/applications/MFA/admin review | Implemented | Identity/bootstrap migrations installed; MFA manually verified by user | Recovery and signed-in review acceptance |
-| Private ledger | Implemented | Installed on nonproduction; empty | Financial policy, affiliate read interfaces, full rebuild/CI |
+| Private ledger | Implemented | Installed on the production-classified project; empty | Financial policy, affiliate read interfaces, full rebuild/CI |
 | Signed webhook receiver | Implemented, including isolated activation-ping handling | Disabled, not deployed | Live webhook acceptance, operational limits |
 | Durable ingestion queue | Migration prepared | Combined rollback rehearsal and isolated independent-session races passed; NOT installed | Tracked installation and installed-function postchecks |
 | Order refresh/status/refund summaries | Implemented | No live processing | PipraPay evidence verification, detailed refunds, end-to-end acceptance |
@@ -86,7 +100,7 @@ Account/application foundation and private ledger exist. Store ingestion is unde
 | Known-order reconciliation | Requeue wired into worker invocation | Disabled | Hosted acceptance |
 | Missed-order discovery | Page fetcher, worker integration and checkpoint migration implemented locally | Combined rollback rehearsal and isolated concurrency passed; disabled; migration NOT installed | Tracked installation, store compatibility and live acceptance |
 | Commission calculation/reversals/payouts | Intentionally not implemented | Disabled | Approved commercial rules |
-| Admin commission/disbursement settings | Draft editor, validation, revision history and guarded save RPC implemented | Settings migration installed on nonproduction; database save/read and two-session concurrency passed; no policy seeded | Signed-in browser save/reload and frontend deployment; publication/execution remain separate |
+| Admin commission/disbursement settings | Draft editor, validation, revision history and guarded save RPC implemented | Settings migration installed on the production-classified project; database save/read and two-session concurrency passed; no policy seeded | Signed-in browser save/reload and frontend deployment; publication/execution remain separate |
 
 ## Latest delivery
 

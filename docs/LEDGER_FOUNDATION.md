@@ -1,6 +1,8 @@
 # Ledger foundation — private database posting
 
-The pure validator is now backed by a private operator-only database ledger. Migration 20261015135651 was applied to verified nonproduction on 2026-10-15. Do not rerun it. No application API route, earnings or payouts are enabled; all four actual ledger tables are empty.
+**Classification correction (2026-10-16):** the project this migration was applied to, `nwgdzzpcbqmfqujycpqk`, is owner-confirmed PRODUCTION. The "verified nonproduction" wording below records the mistaken label in use at the time. Do not rerun the migration and do not run fixture suites against that project; see `PRODUCTION_HANDOFF.md`.
+
+The pure validator is now backed by a private operator-only database ledger. Migration 20261015135651 was applied on 2026-10-15 to the project then believed to be nonproduction (it is production — see correction above). Do not rerun it. No application API route, earnings or payouts are enabled; all four actual ledger tables are empty.
 
 Amounts are canonical nonnegative integer strings in minor units, processed with bigint. Each line has exactly one positive side, entries balance in one currency/exponent, and per-line and aggregate amounts are bounded by signed PostgreSQL bigint capacity. At least two distinct account IDs are required. Output is a copied, frozen value, not an immutable persisted ledger.
 

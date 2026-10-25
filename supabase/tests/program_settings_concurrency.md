@@ -1,5 +1,7 @@
 # Program settings concurrency acceptance
 
+**Classification correction (2026-10-16): any reference below to a nonproduction project concerns `nwgdzzpcbqmfqujycpqk`, owner-confirmed PRODUCTION. Do not repeat fixture/concurrency procedures against it; use a separate test database. See `docs/PRODUCTION_HANDOFF.md`.**
+
 Executed October 15, 2026 on the configured nonproduction project using two independent database query requests in parallel, after settings installation.
 
 ## Isolation and setup

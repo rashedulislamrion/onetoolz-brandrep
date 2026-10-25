@@ -1,6 +1,6 @@
 # Woo independent-session concurrency acceptance
 
-Executed on the confirmed nonproduction project `nwgdzzpcbqmfqujycpqk` during the October 15 local work session (October 16, 2026 UTC). No production WooCommerce requests.
+**Correction (2026-10-16): `nwgdzzpcbqmfqujycpqk` is owner-confirmed PRODUCTION; "nonproduction" below was a mistaken label. Do not repeat this procedure against that project — use a separate test database.** Executed on the project then confirmed as nonproduction, `nwgdzzpcbqmfqujycpqk` during the October 15 local work session (October 16, 2026 UTC). No production WooCommerce requests.
 
 ## Isolation
 
