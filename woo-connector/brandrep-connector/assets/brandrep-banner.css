@@ -1,0 +1,65 @@
+/* BrandRep Connector — consent banner. Minimal, theme-agnostic, OneToolz mint accent. */
+.brc-banner {
+	position: fixed;
+	left: 16px;
+	right: 16px;
+	bottom: 16px;
+	z-index: 99990;
+	max-width: 720px;
+	margin: 0 auto;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 12px 20px;
+	padding: 16px 20px;
+	background: #0a1a18;
+	color: #e8f5f0;
+	border: 1px solid #20e3a2;
+	border-radius: 10px;
+	box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.brc-banner-text {
+	flex: 1 1 320px;
+	margin: 0;
+}
+
+.brc-banner-actions {
+	display: flex;
+	gap: 10px;
+}
+
+.brc-btn {
+	display: inline-block;
+	min-height: 44px;
+	padding: 10px 20px;
+	border-radius: 6px;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.brc-btn-accept {
+	background: #20e3a2;
+	color: #06231b;
+}
+
+.brc-btn-accept:hover,
+.brc-btn-accept:focus {
+	background: #4beebd;
+	color: #06231b;
+}
+
+.brc-btn-decline {
+	background: transparent;
+	color: #e8f5f0;
+	border: 1px solid #e8f5f0;
+}
+
+.brc-btn-decline:hover,
+.brc-btn-decline:focus {
+	background: rgba(232, 245, 240, 0.12);
+	color: #e8f5f0;
+}
