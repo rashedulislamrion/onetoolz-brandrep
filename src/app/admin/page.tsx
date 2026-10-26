@@ -11,36 +11,50 @@ export default async function Admin() {
   const { client } = await requireAccess("admin");
   // Every figure on this page is a live read, each failing closed on its own:
   // a failed read renders as unavailable, never as a fabricated zero.
-  let pendingCount: number | null = null;
-  let pendingPreview: { id: string; display_name: string; promotion_url: string; created_at: string }[] | null = null;
-  try {
-    const { data, error, count } = await client.from("affiliate_applications")
-      .select("id,display_name,promotion_url,created_at", { count: "exact" })
-      .eq("status", "pending").order("created_at").limit(5);
-    if (!error) { pendingCount = count ?? null; pendingPreview = data ?? []; }
-  } catch { pendingCount = null; pendingPreview = null; }
-  let affiliateCount: number | null = null;
-  try {
-    const { count, error } = await client.from("affiliates").select("user_id", { count: "exact", head: true }).eq("status", "approved");
-    if (!error) affiliateCount = count ?? null;
-  } catch { affiliateCount = null; }
-  let queue = null as ReturnType<typeof mapAdminPayoutQueue> | null;
-  try {
-    const { data, error } = await client.rpc("admin_payout_queue");
-    if (!error) queue = mapAdminPayoutQueue(data);
-  } catch { queue = null; }
-  let policy: { version: number; commission_bps: number; currency: string; effective_at: string } | null = null;
-  let policyKnown = false;
-  try {
-    const { data, error } = await client.from("program_policies")
-      .select("version,commission_bps,currency,effective_at").order("version", { ascending: false }).limit(1);
-    if (!error) { policyKnown = true; policy = data?.[0] ?? null; }
-  } catch { policyKnown = false; }
-  let reconciliation = null as ReturnType<typeof mapReconciliationOverview> | null;
-  try {
-    const { data, error } = await client.rpc("admin_reconciliation_overview");
-    if (!error) reconciliation = mapReconciliationOverview(data);
-  } catch { reconciliation = null; }
+  // All five reads are independent, so they run in parallel (Promise.all)
+  // instead of five sequential round-trips. Each read keeps its own
+  // try/catch and still fails closed on its own.
+  type PendingPreview = { id: string; display_name: string; promotion_url: string; created_at: string }[];
+  type PolicyRow = { version: number; commission_bps: number; currency: string; effective_at: string };
+  const [pending, affiliateCount, queue, policyResult, reconciliation] = await Promise.all([
+    (async (): Promise<{ count: number | null; preview: PendingPreview | null }> => {
+      try {
+        const { data, error, count } = await client.from("affiliate_applications")
+          .select("id,display_name,promotion_url,created_at", { count: "exact" })
+          .eq("status", "pending").order("created_at").limit(5);
+        return !error ? { count: count ?? null, preview: data ?? [] } : { count: null, preview: null };
+      } catch { return { count: null, preview: null }; }
+    })(),
+    (async (): Promise<number | null> => {
+      try {
+        const { count, error } = await client.from("affiliates").select("user_id", { count: "exact", head: true }).eq("status", "approved");
+        return !error ? (count ?? null) : null;
+      } catch { return null; }
+    })(),
+    (async (): Promise<ReturnType<typeof mapAdminPayoutQueue> | null> => {
+      try {
+        const { data, error } = await client.rpc("admin_payout_queue");
+        return !error ? mapAdminPayoutQueue(data) : null;
+      } catch { return null; }
+    })(),
+    (async (): Promise<{ known: boolean; policy: PolicyRow | null }> => {
+      try {
+        const { data, error } = await client.from("program_policies")
+          .select("version,commission_bps,currency,effective_at").order("version", { ascending: false }).limit(1);
+        return !error ? { known: true, policy: data?.[0] ?? null } : { known: false, policy: null };
+      } catch { return { known: false, policy: null }; }
+    })(),
+    (async (): Promise<ReturnType<typeof mapReconciliationOverview> | null> => {
+      try {
+        const { data, error } = await client.rpc("admin_reconciliation_overview");
+        return !error ? mapReconciliationOverview(data) : null;
+      } catch { return null; }
+    })(),
+  ]);
+  const pendingCount = pending.count;
+  const pendingPreview = pending.preview;
+  const policyKnown = policyResult.known;
+  const policy = policyResult.policy;
   const cards: { title: string; help: string; value: React.ReactNode }[] = [
     { title: "Pending applications", help: "Applications waiting for a review decision.", value: pendingCount === null ? "—" : <CountUp value={pendingCount} /> },
     { title: "Payouts awaiting action", help: "Requests holding a ledger reservation.", value: queue === null ? "—" : <CountUp value={queue.length} /> },

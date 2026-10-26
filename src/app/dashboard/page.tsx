@@ -17,33 +17,39 @@ export default async function Dashboard() {
   // own accounts only, derived from journal lines). Any failure — including a
   // migration not being installed — fails closed to the honest unavailable
   // placeholders below; nothing is ever rendered as zero on error.
-  let totals: readonly CurrencyTotals[] | null = null;
-  try {
-    const { data, error } = await client.rpc("affiliate_commission_totals");
-    if (!error) totals = mapCommissionTotals(data);
-  } catch { totals = null; }
-  let balances = null as ReturnType<typeof mapLedgerBalances>;
-  try {
-    const { data, error } = await client.rpc("affiliate_ledger_balances");
-    if (!error) balances = mapLedgerBalances(data);
-  } catch { balances = null; }
-  // Campaigns and store-link status are real reads too (own rows / own status
-  // RPC). They fail closed independently of the money reads above.
+  // All four reads are independent, so they run in parallel (Promise.all)
+  // instead of four sequential round-trips. Each read keeps its own
+  // try/catch and still fails closed independently of the others.
   const config = getAuthConfiguration(process.env);
-  let campaigns: CampaignRow[] | null = null;
-  try {
-    const { data, error } = await client.from("referral_campaigns")
-      .select("id,code,name,destination_path,active").order("created_at", { ascending: false }).limit(5);
-    if (!error && Array.isArray(data)) campaigns = data as CampaignRow[];
-  } catch { campaigns = null; }
-  let storeLinkActive: boolean | null = null;
-  try {
-    const { data, error } = await client.rpc("store_link_status");
-    if (!error) {
-      const row = Array.isArray(data) ? data[0] : data;
-      if (row && typeof row.active === "boolean") storeLinkActive = row.active;
-    }
-  } catch { storeLinkActive = null; }
+  const [totals, balances, campaigns, storeLinkActive] = await Promise.all([
+    (async (): Promise<readonly CurrencyTotals[] | null> => {
+      try {
+        const { data, error } = await client.rpc("affiliate_commission_totals");
+        return !error ? mapCommissionTotals(data) : null;
+      } catch { return null; }
+    })(),
+    (async (): Promise<ReturnType<typeof mapLedgerBalances>> => {
+      try {
+        const { data, error } = await client.rpc("affiliate_ledger_balances");
+        return !error ? mapLedgerBalances(data) : null;
+      } catch { return null; }
+    })(),
+    (async (): Promise<CampaignRow[] | null> => {
+      try {
+        const { data, error } = await client.from("referral_campaigns")
+          .select("id,code,name,destination_path,active").order("created_at", { ascending: false }).limit(5);
+        return !error && Array.isArray(data) ? (data as CampaignRow[]) : null;
+      } catch { return null; }
+    })(),
+    (async (): Promise<boolean | null> => {
+      try {
+        const { data, error } = await client.rpc("store_link_status");
+        if (error) return null;
+        const row = Array.isArray(data) ? data[0] : data;
+        return row && typeof row.active === "boolean" ? row.active : null;
+      } catch { return null; }
+    })(),
+  ]);
   const payableParts: string[] = [];
   if (balances !== null) {
     for (const currency of balances) {
@@ -85,7 +91,7 @@ export default async function Dashboard() {
             : campaigns.map(campaign => { const link = config.ready ? referralLink(config.origin, campaign.code) : null; return <div className="campaign-row" key={campaign.id}><div className="campaign-main"><strong>{campaign.name}</strong>{link ? <a className="campaign-link" href={link}>{link}</a> : <span className="campaign-link">Origin unavailable</span>}</div><span className={campaign.active ? "pill-status ok" : "pill-status warn"}>{campaign.active ? "Live" : "Paused"}</span>{link && <CopyButton value={link} />}</div>; })}
       </article>
       <article className="panel"><div className="panel-head"><div><span className="eyebrow">YOUR REFERRAL TOOLKIT</span><h2>How your credit works.</h2></div></div>
-        <p className="muted">Referral tracking is live: first-click credit, a 7-day window, and no self-referrals — later clicks do not reset the window. Capture on the store is consent-based, so visitors who decline tracking are never attributed.</p>
+        <p className="muted">Referral tracking is live: first-click credit, a 7-day window, and no self-referrals — later clicks do not reset the window. Capture on the store activates automatically when a referral link is clicked, so there is no popup or extra step for the visitor.</p>
         <p className="field-help">Store account link: {storeLinkActive === null ? "status unavailable" : storeLinkActive ? "active — your store purchases can be identity-checked by the bridge." : "not linked yet — link your store account so the bridge can check your orders for self-referrals."}</p>
         <Link className="text-link" href="/dashboard/referrals">Manage campaign links &amp; store account →</Link>
       </article>

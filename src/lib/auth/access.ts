@@ -1,17 +1,23 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createAuthClient } from "@/lib/supabase/server";
 import { mayAccessAdmin, mayAccessAffiliate } from "@/lib/auth/policy";
 
-export async function requireIdentity() {
+// React cache(): within one request, the workspace layout and the page both
+// call requireAccess with the same kind. Without dedupe that meant two
+// auth.getUser() round-trips plus two role/affiliate (or MFA) query sets per
+// navigation. cache() collapses them into one; redirect() still throws on
+// denial, so fail-closed behaviour is unchanged.
+export const requireIdentity = cache(async function requireIdentity() {
   const client = await createAuthClient();
   if (!client) redirect("/login?notice=setup");
   const { data, error } = await client.auth.getUser();
   if (error || !data.user) redirect("/login?notice=session");
   return { client, user: data.user };
-}
+});
 
-export async function requireAccess(kind: "affiliate" | "admin") {
+export const requireAccess = cache(async function requireAccess(kind: "affiliate" | "admin") {
   const { client, user } = await requireIdentity();
   // Missing schema/network failures deny access.
   // Never derive privileges from editable user_metadata.
@@ -30,4 +36,4 @@ export async function requireAccess(kind: "affiliate" | "admin") {
     }
   }
   return { user, client };
-}
+});
