@@ -5,9 +5,9 @@ Install it on the OneToolz store (`cu.onetoolz.com`, WooCommerce + HPOS + CartFl
 
 It does exactly three things:
 
-1. **Referral capture** — when a visitor lands with `?br_ref=<campaign code>`, it stores a first-click referral in first-party cookies (after consent) and reports the touch to the hub over the signed BrandRep bridge.
+1. **Referral capture** — when a visitor lands with `?br_ref=<campaign code>`, it stores a first-click referral in first-party cookies (automatically — clicking the link is the trigger; there is no consent popup since v1.1.0) and reports the touch to the hub over the signed BrandRep bridge.
 2. **Account linking** — a signed-in customer can link their store account to their BrandRep account from My Account → BrandRep.
-3. **Order association** — when a linked customer with referral consent pays for an order, it sends a signed "order" event to the hub so the hub can decide attribution (first-click / 7 days / no self-referrals — the hub decides; this plugin only reports facts).
+3. **Order association** — when a linked customer who arrived via a referral link pays for an order, it sends a signed "order" event to the hub so the hub can decide attribution (first-click / 7 days / no self-referrals — the hub decides; this plugin only reports facts).
 
 It does **not** calculate commissions, create coupons, add checkout fields, or change any order status. The hub remains the only place attribution and money decisions are made.
 
@@ -32,8 +32,7 @@ The order event sends the customer's **link token** as `Authorization: Bearer br
 3. Go to **WooCommerce → BrandRep** and configure (below).
 4. Paste the referral parameter into a test link, e.g. `https://cu.onetoolz.com/?br_ref=<a real 32-character campaign code from the hub>`, open it in a private window, and confirm:
    - the `br_ref` parameter disappears from the address bar (redirect),
-   - the consent banner appears,
-   - after **Accept**, a capture is sent (hub side: a touch row; store side: with `WP_DEBUG` on, the error log shows `BrandRep bridge capture event -> HTTP 202` — status codes only, never bodies or the secret).
+   - no banner or popup appears — the capture is sent automatically at landing (hub side: a touch row; store side: with `WP_DEBUG` on, the error log shows `BrandRep bridge capture event -> HTTP 202` — status codes only, never bodies or the secret).
 
 No code snippets, theme edits or child themes are needed or wanted.
 
@@ -41,7 +40,7 @@ No code snippets, theme edits or child themes are needed or wanted.
 
 | Setting | Notes |
 | --- | --- |
-| Enable connector | Master switch. While off: no cookies, no banner, no linking effect, no bridge calls. Silent no-op. |
+| Enable connector | Master switch. While off: no cookies, no linking effect, no bridge calls. Silent no-op. |
 | Hub URL | Default `https://brandrep.onetoolz.com`. Base URL only, no trailing path. |
 | Bridge secret | Must exactly match the hub's `REFERRAL_BRIDGE_SECRET` (32–256 characters). Stored in a WP option on this site only. Shown never; leave blank when saving to keep the saved value. It is only ever used locally to compute HMAC signatures — the secret itself is never transmitted. |
 
@@ -57,7 +56,7 @@ Flow:
 
 1. On landing, the plugin sets a random visitor-id cookie and (first-click only) the referral cookie, then **redirects to the same URL without `br_ref`** so the code is not bookmarked or reshared onward.
 2. **First-click wins:** while a `br_ref` cookie is unexpired (7 days), a different `br_ref` never overwrites it, and the 7-day clock is never extended by later visits.
-3. The consent banner appears (only when a referral cookie exists and no choice is recorded). **Accept** records consent and immediately sends the capture event. **Decline** records refusal — no capture is ever sent while refusal stands. If the visitor had already accepted on an earlier visit, capture happens right at landing with no banner.
+3. Capture is automatic (v1.1.0): landing via a referral link records `br_consent = yes` and sends the capture event immediately — no banner, no popup, no extra click. A legacy `br_consent = no` left by the retired v1.0.0 banner is still honoured as an opt-out: no capture is sent while it stands.
 4. Capture is sent once per (visitor, code) from a given browser; a small flag cookie suppresses duplicates. If a capture fails (hub offline etc.), it is retried automatically on a later page view — no data is invented and nothing is backdated (the hub timestamps captures itself).
 
 ## How account linking works
@@ -81,7 +80,7 @@ All cookies are host-only (this store's domain only), `SameSite=Lax`, and `Secur
 | --- | --- | --- | --- |
 | `br_vid` | 30 days | Yes | Random 32-byte visitor id (64 hex chars). Never leaves the device except as its SHA-256 hash. |
 | `br_ref` | 7 days | Yes | The first-click campaign code. This *is* the 7-day attribution window. |
-| `br_consent` | 1 year | Yes | `yes` / `no` — the visitor's banner decision. |
+| `br_consent` | 1 year | Yes | `yes` — recorded automatically on a referral landing (v1.1.0+). A legacy `no` from the retired v1.0.0 banner is honoured as an opt-out. |
 | `br_captured_<hash>` | 30 days | Yes | Set to `1` after a successful capture so the same (visitor, code) is not re-sent from this browser. |
 
 ## Data sent to the hub
@@ -108,17 +107,17 @@ Order meta written by this plugin: `_brandrep_visitor_hash`, `_brandrep_consent`
 ## Privacy notes
 
 - No fingerprinting, no IP/email-based identity, no cross-site tracking: the visitor id is a random value stored only in a first-party cookie, and only its SHA-256 ever leaves the store.
-- Nothing is captured before consent, and declining is permanent for that browser until the cookie expires or is cleared.
+- Capture happens automatically when a referral link is clicked (v1.1.0) — there is no banner or popup. A legacy decline cookie from v1.0.0 still blocks capture for that browser until it expires or is cleared.
 - The bridge secret and full event bodies are never written to any log. With `WP_DEBUG` enabled, only event kind + HTTP status code are logged.
-- Withdrawing consent later: declining stops future captures immediately (the banner decision cookie), but evidence already accepted by the hub is retained/deleted under the hub's own policy — see the open item in `docs/REFERRAL_BRIDGE.md`.
+- Evidence already accepted by the hub is retained/deleted under the hub's own policy — see the open item in `docs/REFERRAL_BRIDGE.md`.
 
 ## Limitations
 
 - **Guest checkout = no association.** Order events require a linked, signed-in buyer. A guest order is never associated, even if it arrived via a referral (its capture may still exist hub-side, unattributed). This matches the hub protocol: guest/unlinked buyers are denied.
-- **Same-browser only.** The referral lives in this browser's cookies. Click on a phone, buy on a laptop = no association. Clearing cookies, private windows, and consent refusal all break the chain by design.
+- **Same-browser only.** The referral lives in this browser's cookies. Click on a phone, buy on a laptop = no association. Clearing cookies and private windows break the chain by design.
 - **The hub must have the order first.** The hub only associates orders it has already ingested through its Woo refresh path; an order event that arrives earlier gets a 503 and this plugin's retries (up to ~7 hours) are what eventually land it — if the order is still missing hub-side after that, the association is lost and must be handled hub-side.
 - **`/r/<code>` handoff:** the hub's public redirect currently sends visitors straight to the store destination. For landings to carry the campaign code, that redirect (or the shared link) must include `?br_ref=<code>`; this plugin treats any landing with a valid `br_ref` as a referral landing.
-- **Page caching:** full-page caches (LiteSpeed etc.) must not cache the landing response in a way that drops `Set-Cookie` headers or the strip-redirect. If landings misbehave behind the cache, exclude URLs containing `br_ref` (and the consent-choice parameters) from cache.
+- **Page caching:** full-page caches (LiteSpeed etc.) must not cache the landing response in a way that drops `Set-Cookie` headers or the strip-redirect. If landings misbehave behind the cache, exclude URLs containing `br_ref` from cache.
 - **First-click is enforced per browser here, and again hub-side.** The hub preserves the first unexpired touch for a visitor hash; this plugin additionally never overwrites the local first click.
 
 ## Uninstall cleanup

@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       BrandRep Connector for WooCommerce
  * Plugin URI:        https://brandrep.onetoolz.com
- * Description:       Store-side referral adapter for the OneToolz BrandRep affiliate hub. Captures first-click referrals (with consent), lets customers link their BrandRep account, and associates paid orders with the hub over the signed BrandRep bridge. No commissions, coupons or checkout changes.
- * Version:           1.0.0
+ * Description:       Store-side referral adapter for the OneToolz BrandRep affiliate hub. Captures first-click referrals automatically when a partner link is clicked (no consent popup), lets customers link their BrandRep account, and associates paid orders with the hub over the signed BrandRep bridge. No commissions, coupons or checkout changes.
+ * Version:           1.1.0
  * Author:            OneToolz
  * License:           GPL-2.0-or-later
  * Text Domain:       brandrep-connector
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'BRC_VERSION', '1.0.0' );
+define( 'BRC_VERSION', '1.1.0' );
 define( 'BRC_OPTION_KEY', 'brandrep_connector_settings' );
 define( 'BRC_POLICY_VERSION', 'first-click-7d-no-self-v1' );
 define( 'BRC_DEFAULT_HUB_URL', 'https://brandrep.onetoolz.com' );
@@ -240,8 +240,17 @@ function brc_maybe_send_capture() {
 	if ( ! brc_valid_vid( $vid ) || ! brc_valid_code( $ref ) ) {
 		return false;
 	}
-	if ( ! isset( $_COOKIE['br_consent'] ) || 'yes' !== $_COOKIE['br_consent'] ) {
+	// Auto-capture (v1.1.0): arriving via a referral link IS the capture
+	// trigger — there is no consent banner or popup. Record consent
+	// automatically so the order snapshot and the bridge event carry the
+	// exact same consent:true contract as before. A legacy br_consent=no
+	// left by the retired v1.0.0 banner is still honoured as an opt-out
+	// remnant and blocks capture.
+	if ( isset( $_COOKIE['br_consent'] ) && 'no' === $_COOKIE['br_consent'] ) {
 		return false;
+	}
+	if ( ! isset( $_COOKIE['br_consent'] ) || 'yes' !== $_COOKIE['br_consent'] ) {
+		brc_set_cookie( 'br_consent', 'yes', 365 );
 	}
 
 	$visitor_hash = hash( 'sha256', $vid );
@@ -264,7 +273,7 @@ function brc_maybe_send_capture() {
 		brc_set_cookie( $flag, '1', 30 );
 		return true;
 	}
-	// On failure no flag is set: a later page view with consent will retry.
+	// On failure no flag is set: a later page view will retry automatically.
 	return false;
 }
 
@@ -274,10 +283,12 @@ function brc_maybe_send_capture() {
  * template_redirect is used because cookies can still be set and a safe
  * redirect issued there; by the time templates render, headers are gone.
  * Chain handled once per request:
- *  1. ?br_ref=<code> landing  -> set first-touch cookies, strip the param.
- *  2. ?br_consent_choice=...  -> record consent, strip the param.
- *  3. Plain page view         -> if consent + referral cookies are present
- *                                and no capture was sent yet, send it now.
+ *  1. ?br_ref=<code> landing  -> set first-touch cookies, auto-record
+ *                                consent and send the capture immediately,
+ *                                then strip the param.
+ *  2. Plain page view         -> if referral cookies are present and no
+ *                                capture was sent yet, send it now
+ *                                (auto-recording consent the same way).
  * ---------------------------------------------------------------------- */
 add_action( 'template_redirect', 'brc_handle_frontend', 1 );
 function brc_handle_frontend() {
@@ -288,7 +299,7 @@ function brc_handle_frontend() {
 		return;
 	}
 	if ( ! brc_settings()['enabled'] ) {
-		return; // Plugin disabled: no cookies, no banner, no calls.
+		return; // Plugin disabled: no cookies, no calls.
 	}
 
 	$redirect_needed = false;
@@ -312,28 +323,16 @@ function brc_handle_frontend() {
 			if ( ! brc_valid_code( $existing ) ) {
 				brc_set_cookie( 'br_ref', $code, 7 );
 			}
-			// Consent given on an earlier visit: capture immediately.
-			if ( isset( $_COOKIE['br_consent'] ) && 'yes' === $_COOKIE['br_consent'] ) {
-				brc_maybe_send_capture();
-			}
+			// Auto-capture: clicking the referral link is the trigger.
+			// brc_maybe_send_capture() records br_consent=yes itself
+			// (unless a legacy opt-out stands) and sends the signed
+			// capture event — no banner, no popup, no extra click.
+			brc_maybe_send_capture();
 		}
 		$redirect_needed = true; // Always strip br_ref from the visible URL.
 	}
 
-	/* 2. Consent choice (no-JS fallback links) -------------------------- */
-	if ( isset( $_GET['br_consent_choice'] ) && isset( $_GET['brc_nonce'] )
-		&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['brc_nonce'] ) ), 'brc_consent_choice' ) ) {
-		$choice = sanitize_text_field( wp_unslash( $_GET['br_consent_choice'] ) );
-		if ( 'accept' === $choice ) {
-			brc_set_cookie( 'br_consent', 'yes', 365 );
-			brc_maybe_send_capture();
-		} elseif ( 'decline' === $choice ) {
-			brc_set_cookie( 'br_consent', 'no', 365 );
-		}
-		$redirect_needed = true;
-	}
-
-	/* 3. Ordinary page view: retry a pending capture --------------------- */
+	/* 2. Ordinary page view: retry a pending capture --------------------- */
 	if ( ! $redirect_needed ) {
 		brc_maybe_send_capture();
 	}
@@ -349,81 +348,12 @@ function brc_handle_frontend() {
 }
 
 /* -------------------------------------------------------------------------
- * Consent banner (front-end)
+ * Consent banner — REMOVED in v1.1.0.
  *
- * Shown only when the plugin is enabled, a referral cookie exists and no
- * consent decision has been recorded. Accepting triggers the server-side
- * capture via AJAX (with a plain-link fallback); declining records
- * br_consent=no and no capture is ever sent while that stands.
+ * Referral capture is automatic: clicking a partner link records consent
+ * and sends the capture (see brc_maybe_send_capture). There is no banner,
+ * no popup, no AJAX consent endpoint and no front-end asset to enqueue.
  * ---------------------------------------------------------------------- */
-function brc_should_show_banner() {
-	if ( ! brc_settings()['enabled'] || is_admin() ) {
-		return false;
-	}
-	if ( isset( $_COOKIE['br_consent'] ) ) {
-		return false;
-	}
-	$ref = isset( $_COOKIE['br_ref'] ) ? sanitize_text_field( wp_unslash( $_COOKIE['br_ref'] ) ) : '';
-	return brc_valid_code( $ref );
-}
-
-add_action( 'wp_enqueue_scripts', 'brc_enqueue_banner_assets' );
-function brc_enqueue_banner_assets() {
-	if ( ! brc_should_show_banner() ) {
-		return;
-	}
-	wp_enqueue_style( 'brandrep-banner', plugin_dir_url( __FILE__ ) . 'assets/brandrep-banner.css', array(), BRC_VERSION );
-	wp_enqueue_script( 'brandrep-banner', plugin_dir_url( __FILE__ ) . 'assets/brandrep-banner.js', array(), BRC_VERSION, true );
-	wp_localize_script(
-		'brandrep-banner',
-		'BrandRepBanner',
-		array(
-			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-			'nonce'   => wp_create_nonce( 'brc_consent_choice' ),
-		)
-	);
-}
-
-add_action( 'wp_footer', 'brc_render_banner' );
-function brc_render_banner() {
-	if ( ! brc_should_show_banner() ) {
-		return;
-	}
-	$current = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$accept  = wp_nonce_url( add_query_arg( 'br_consent_choice', 'accept', $current ), 'brc_consent_choice', 'brc_nonce' );
-	$decline = wp_nonce_url( add_query_arg( 'br_consent_choice', 'decline', $current ), 'brc_consent_choice', 'brc_nonce' );
-	?>
-	<div class="brc-banner" id="brc-banner" role="region" aria-label="<?php esc_attr_e( 'Referral cookie notice', 'brandrep-connector' ); ?>">
-		<p class="brc-banner-text">
-			<?php esc_html_e( 'You arrived via a OneToolz partner link. With your permission we store a cookie so that partner can be credited if you place an order. No advertising cookies are set by this notice.', 'brandrep-connector' ); ?>
-		</p>
-		<div class="brc-banner-actions">
-			<a class="brc-btn brc-btn-accept" href="<?php echo esc_url( $accept ); ?>" data-brc-choice="accept"><?php esc_html_e( 'Accept', 'brandrep-connector' ); ?></a>
-			<a class="brc-btn brc-btn-decline" href="<?php echo esc_url( $decline ); ?>" data-brc-choice="decline"><?php esc_html_e( 'Decline', 'brandrep-connector' ); ?></a>
-		</div>
-	</div>
-	<?php
-}
-
-/* AJAX consent endpoints (guests included) ------------------------------ */
-add_action( 'wp_ajax_brc_consent', 'brc_ajax_consent' );
-add_action( 'wp_ajax_nopriv_brc_consent', 'brc_ajax_consent' );
-function brc_ajax_consent() {
-	if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'brc_consent_choice' ) ) {
-		wp_send_json_error( array( 'message' => 'invalid nonce' ), 403 );
-	}
-	$choice = isset( $_POST['choice'] ) ? sanitize_text_field( wp_unslash( $_POST['choice'] ) ) : '';
-	if ( 'accept' === $choice ) {
-		brc_set_cookie( 'br_consent', 'yes', 365 );
-		brc_maybe_send_capture();
-		wp_send_json_success( array( 'consent' => 'yes' ) );
-	}
-	if ( 'decline' === $choice ) {
-		brc_set_cookie( 'br_consent', 'no', 365 );
-		wp_send_json_success( array( 'consent' => 'no' ) );
-	}
-	wp_send_json_error( array( 'message' => 'invalid choice' ), 400 );
-}
 
 /* -------------------------------------------------------------------------
  * Admin: WooCommerce -> BrandRep settings page
@@ -685,7 +615,7 @@ function brc_render_account_endpoint() {
 			);
 			?>
 		</p>
-		<p><?php esc_html_e( 'Orders you place while signed in can now be credited through BrandRep when you arrived via a partner link and accepted the referral cookie.', 'brandrep-connector' ); ?></p>
+		<p><?php esc_html_e( 'Orders you place while signed in can now be credited through BrandRep when you arrived via a partner link — referral tracking activates automatically when the link is clicked, with no popup to accept.', 'brandrep-connector' ); ?></p>
 		<form method="post">
 			<?php wp_nonce_field( 'brc_link_account', 'brc_link_nonce' ); ?>
 			<input type="hidden" name="brc_link_action" value="unlink" />
