@@ -56,7 +56,7 @@ test("navigation and disabled auth make setup state clear", async ({ page }) => 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-for (const route of ["/dashboard", "/admin", "/application/status", "/reset-password", "/apply", "/account/security", "/admin/applications"]) {
+for (const route of ["/dashboard", "/dashboard/payouts", "/admin", "/admin/payouts", "/admin/reconciliation", "/application/status", "/reset-password", "/apply", "/account/security", "/admin/applications"]) {
   test(`anonymous access to ${route} fails closed`, async ({ page }) => {
     await page.goto(route);
     await expect(page).toHaveURL(/\/login\?notice=setup$/);
