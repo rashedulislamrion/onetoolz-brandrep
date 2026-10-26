@@ -8,6 +8,8 @@ Latest: Supabase connection verified (project is production-classified — see c
 
 **Ownership correction:** the user confirms Vercel hosting is already handled. Agent work is implementation, validation, commits and pushes to main. Earlier CLI observations below are historical only, not blockers or proof about the user's deployment. Do not resume hosting/DNS/account work unless specifically asked.
 
+**Operator procedure:** `docs/LAUNCH_RUNBOOK.md` is the step-by-step launch procedure (test-project acceptance, tracked migration installation order, secret provisioning by name, flag enablement order, store connector installation, administrator bootstrap, policy publication, the full-path smoke scenario, backup/restore, monitoring and disable switches). The gates below state what must be true; the runbook states how an operator makes it true.
+
 ## Verified now
 
 - Revenue Engine release `d1d1fad`: GitHub Actions completed successfully. Local baseline: 233 unit tests, 26 desktop/mobile browser tests, lint/typecheck, build and heuristic secret scan passed.
@@ -30,7 +32,7 @@ Exit: public site reachable on HTTPS with live smoke evidence. This gate does no
 
 ### B. Accounts and application review (phase 1 closure)
 
-Engineering: the production Supabase project already exists (`nwgdzzpcbqmfqujycpqk`, seven migrations installed — do not blanket-push or replay them). Provision a SEPARATE disposable test project for migration/fixture acceptance; review/install new migrations on the test project first, then on production through the tracked process. Configure production-only publishable credentials, exact APP_ORIGIN and callback redirects; isolate preview/staging credentials. Verify email delivery/confirmation, reset/recovery, admin bootstrap, AAL2 review and signed-in settings save/reload. Add durable signup/reset abuse protection and review provider limits. Add structured country/channel/niche fields through tracked RPC/schema changes and policy-version acceptance after policies exist.
+Engineering: the production Supabase project already exists (`nwgdzzpcbqmfqujycpqk`, seven migrations installed — do not blanket-push or replay them). Provision a SEPARATE disposable test project for migration/fixture acceptance; review/install new migrations on the test project first, then on production through the tracked process (exact suite list and installation order: runbook §1.1–1.3). Configure production-only publishable credentials, exact APP_ORIGIN and callback redirects; isolate preview/staging credentials. Verify email delivery/confirmation, reset/recovery, admin bootstrap, AAL2 review and signed-in settings save/reload. Add durable signup/reset abuse protection and review provider limits. Add structured country/channel/niche fields through tracked RPC/schema changes and policy-version acceptance after policies exist.
 
 Owner inputs: separate test-project provisioning, verified administrator identity, support address, approved terms/privacy notices and geographic eligibility. Never paste secrets in chat.
 
@@ -56,13 +58,15 @@ Exit: approved affiliate referral maps to an eligible order under a versioned po
 
 Publish immutable effective-dated commercial policies distinct from drafts. Build exact-decimal/minor-unit calculation and transactional idempotent ledger postings; validation holds, releases, rejection reasons, partial/full refunds, chargebacks and reversals. Preserve paid history and record explained adjustments. Add affiliate-safe reads and ledger reconciliation; never compute balances from the public calculator.
 
-Admin dashboard configuration: rates, currency, minimum payout, hold days, review cadence, supported percentage basis and refund treatment. Publication explicitly limits scope to all-products one-time orders and immediate cutover; expanding models/recurrence needs separately implemented controls. Rounding and qualification/release semantics still need versioned admin controls before activation; no request for hard-coded owner rates is required.
+Admin dashboard configuration: rates, currency, minimum payout, hold days, review cadence, supported percentage basis and refund treatment. Publication explicitly limits scope to all-products one-time orders and immediate cutover; expanding models/recurrence needs separately implemented controls. Rounding and qualification are now versioned publication fields in source (rounding mode and the `paid_completed` rule are chosen at publish time); calculation recording, ledger posting, hold release and revisions are source-built (Phases 4–5 status above). What still gates activation is not code: SQL acceptance on the separate test project, tracked installation, and the settlement-evidence decision — posting acts on Woo-recorded `paidAt`, which is not payment settlement evidence, so `COMMISSION_POSTING_ENABLED` stays off until that gate exists (runbook §1.5.4). No request for hard-coded owner rates is required.
 
 Exit: order/replay/refund scenarios reconcile exactly with immutable policy references, no floating-point money arithmetic and no unauthorized balance access.
 
 ### F. Disbursements (phase 5)
 
 Start with auditable manual disbursement recording if approved, not invented provider automation. Build protected payout settings, requests, reservation/approval, duplicate/concurrency protection, payment reference recording, failure/cancellation recovery, statements and reconciliation. Only mark paid after verified settlement evidence. Automated transfers require a separate authorized provider integration and explicit release authority.
+
+Source status: the manual flow is built (Phase 5) — requests reserve payable funds by journal, administrator review is MFA + maker-checker, and settlement only records an external transfer already sent, with its reference. The operator sequence is runbook §1.9 steps 6–7; no transfer is ever sent by the platform.
 
 Owner decisions: methods/provider, supported countries/currencies, threshold, schedule, fees, identity/tax requirements, approvers and dispute process. No purchase or actual transfer is authorized by this document.
 
@@ -71,6 +75,8 @@ Exit: one eligible request completes through verified approval/settlement/reconc
 ### G. Real dashboards and launch operations (phase 6)
 
 Connect real affiliate-scoped metrics, campaign/time filters, charts, links/resources and payout history. Provide admin queue/financial reconciliation, backlog/failure monitoring, alerts, audit and privacy retention. Complete accessibility review, keyboard/mobile testing, security/dependency review, backup/restore and rollback drills, incident procedures, support readiness and signed-in end-to-end acceptance.
+
+Source status: affiliate ledger balances (per-currency buckets from journal lines) and recorded-calculation totals are wired into the dashboard, and `/admin/reconciliation` verifies the per-currency ledger invariant (expense debits == destination bucket balances) with calculation and payout counts. Remaining gate-G work is operational, not source: backup/restore and rollback drills and the monitoring routine are specified in runbook §2–§4; signed-in end-to-end acceptance follows runbook §1.9 on real infrastructure.
 
 Exit: no placeholder financial data, no cross-account leaks, actual balances reconcile and operational ownership is assigned.
 
