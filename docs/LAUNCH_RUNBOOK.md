@@ -128,8 +128,9 @@ Install `woo-connector/brandrep-connector` on cu.onetoolz.com (see
 `woo-connector/README.md`): set the hub origin and the bridge secret
 (the same `REFERRAL_BRIDGE_SECRET` value, entered in the plugin's
 settings — never in chat or in the repo), and enable capture. The
-plugin owns the consent banner, the first-party visitor cookie and the
-signed capture/association calls; the hub sets no cookies.
+plugin owns automatic referral capture (no consent popup since
+connector v1.1.0), the first-party visitor cookie and the signed
+capture/association calls; the hub sets no cookies.
 
 ### 1.7 Bootstrap the first administrator
 
@@ -158,8 +159,8 @@ For production, use one approved naturally occurring order:
 
 1. An approved affiliate creates a campaign and opens `/r/<code>`; it
    lands on the store with `?br_ref=<code>` appended.
-2. The visitor accepts the store consent banner; the connector sends a
-   signed capture and the hub records the referral touch.
+2. The connector auto-captures on landing (no popup); it sends a signed
+   capture and the hub records the referral touch.
 3. The buyer links their store account with a store-link token from
    `/dashboard/referrals` (token shown once; only its hash is stored)
    and completes a real paid order.

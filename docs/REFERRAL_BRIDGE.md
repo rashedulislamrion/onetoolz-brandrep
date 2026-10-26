@@ -46,7 +46,7 @@ Exactly these keys, no extras:
 }
 ```
 
-The store adapter must use a cryptographically random, unguessable visitor secret, derive a stable hash and capture only after consent. Do not derive identity from IP, email or fingerprinting. Store a protected first-party store cookie only after the approved consent flow; never extend the seven-day first-touch expiry on later visits. The database uses server time and preserves the first unexpired capture even if another valid campaign is supplied. On consent withdrawal stop sending events and clear store cookies; operational evidence retention/deletion still needs approved implementation before launch.
+The store adapter must use a cryptographically random, unguessable visitor secret, derive a stable hash and capture automatically when a referral link is clicked (owner decision, connector v1.1.0 — there is no consent popup; the bridge `consent` field remains the literal `true`, and a legacy `br_consent=no` opt-out from the retired banner still blocks capture). Do not derive identity from IP, email or fingerprinting. Store a protected first-party store cookie on that landing; never extend the seven-day first-touch expiry on later visits. The database uses server time and preserves the first unexpired capture even if another valid campaign is supplied. Operational evidence retention/deletion still needs approved implementation before launch.
 
 No browser-supplied capture timestamp is accepted. A paused/suspended/role-revoked campaign cannot acquire new touches. Pausing a campaign stops acquisition but does not retroactively erase a valid touch; suspension/role loss prevents order credit.
 

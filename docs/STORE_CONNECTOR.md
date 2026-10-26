@@ -51,16 +51,19 @@ GET https://brandrep.onetoolz.com/r/<code>   (code = 32 lowercase hex)
   lowercase hex characters (`^[a-f0-9]{32}$`). Anything else is ignored —
   not stored, not forwarded, not an error.
 - `br_ref` is a routing hint, not evidence. On its own it grants nothing:
-  it may only become a `capture` bridge event after the consent gate in §3,
+  it may only become a `capture` bridge event through the automatic capture in §3,
   and the hub re-validates the campaign (active, approved partner) at
   capture time.
 
-## 3. Visitor cookie and consent
+## 3. Visitor cookie and automatic capture
 
-- On a landing carrying a valid `br_ref`, if the visitor has not yet been
-  given the consent choice, present the approved consent flow. Do **not**
-  set the referral cookie or send a capture before consent.
-- After consent, generate a cryptographically random visitor secret
+- On a landing carrying a valid `br_ref`, capture is automatic (owner
+  decision, connector v1.1.0): set the referral cookie and send the
+  capture immediately. There is no consent banner, popup or flow, and
+  the bridge `consent` field stays the literal `true`. A legacy
+  `br_consent=no` opt-out cookie left by the retired v1.0.0 banner is
+  still honoured: while it stands, send nothing.
+- On landing, generate a cryptographically random visitor secret
   (≥ 32 bytes, from a CSPRNG) and store it in a first-party store cookie:
   - name: connector-defined, prefixed `br_` (e.g. `br_visitor`),
   - `HttpOnly; Secure; SameSite=Lax; Path=/`, host-only on
@@ -73,8 +76,8 @@ GET https://brandrep.onetoolz.com/r/<code>   (code = 32 lowercase hex)
 - If a valid unexpired visitor cookie already exists, keep the original
   secret/hash — first click wins store-side as well. A different `br_ref`
   arriving during the window changes nothing.
-- On consent withdrawal: stop sending events, delete the visitor cookie,
-  and do not recreate it without a new consent.
+- On a legacy opt-out (`br_consent=no`): stop sending events and do
+  not capture for that browser.
 - A BrandRep-origin cookie is impossible and irrelevant: all state lives on
   the store origin; continuity across devices is not provided.
 
@@ -94,7 +97,7 @@ Headers on every call:
 | `x-brandrep-signature` | Lowercase hex HMAC-SHA256, keyed with `REFERRAL_BRIDGE_SECRET`, over the exact bytes `timestamp + "." + requestId + "." + rawBody` |
 | `Authorization` | Order events only: `Bearer <buyer proof>` (see §5) |
 
-### 4.1 Capture event (after consent)
+### 4.1 Capture event (automatic, on referral landing)
 
 ```json
 {
@@ -106,7 +109,7 @@ Headers on every call:
 }
 ```
 
-- Send once per newly consented visitor secret. `consent` must be the
+- Send once per newly captured visitor secret. `consent` must be the
   literal `true`; there is no timestamp field — the hub stamps server time.
 - A `202` means the event was accepted (or was an exact retry). It does
   not mean the campaign was eligible or credit exists: paused/suspended
@@ -196,12 +199,12 @@ migration `20261026010000_referral_store_links.sql`):
 - Transport errors are ambiguous: the first attempt may have committed.
   Retry idempotently with the same request ID instead of minting a new
   event.
-- Never queue captures behind consent, and never replay captures after
-  consent withdrawal.
+- Never replay captures for a visitor carrying a legacy opt-out
+  (`br_consent=no`).
 
 ## 7. What the connector must not do
 
-- No attribution cookies before consent; no cross-device identity tricks;
+- Attribution cookies are set only on a referral landing; no cross-device identity tricks;
   no fingerprinting.
 - No commission math, rates or balances — the hub owns policy and ledger.
 - No trusting browser- or order-meta-supplied partner codes, UUIDs or
