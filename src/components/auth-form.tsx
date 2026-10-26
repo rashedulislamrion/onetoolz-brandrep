@@ -26,7 +26,7 @@ export function AuthForm({ mode, notice }: { mode: keyof typeof modes; notice?: 
   const config = getAuthConfiguration(process.env);
   const content = modes[mode];
   return <div className="auth-layout">
-    <aside className="auth-aside"><span className="eyebrow">ONETOOLZ BRANDREP</span><h2>You know your people.<br />Make that connection count.</h2><p>Discover OneToolz. Bring your recommendations to your community. Build toward an earning opportunity that fits your voice.</p><a href="https://cu.onetoolz.com" className="text-link">Explore our main store ↗</a><div className="aside-note"><span aria-hidden="true">✦</span> Pre-launch · Approval required · No guaranteed income</div></aside>
+    <aside className="auth-aside"><span className="eyebrow">ONETOOLZ BRANDREP</span><h2>You know your people.<br />Make that connection count.</h2><p>Discover OneToolz. Bring your recommendations to your community. Build toward an earning opportunity that fits your voice.</p><a href="https://cu.onetoolz.com" className="text-link">Explore our main store ↗</a><div className="aside-note"><span aria-hidden="true">✦</span> Live program · Approval required · No guaranteed income</div></aside>
     <section className="auth-card" aria-labelledby="auth-title"><span className="eyebrow">YOUR PARTNER ACCOUNT</span><h1 id="auth-title">{content.title}</h1><p className="muted">{content.description}</p>
       {!config.ready && <div className="notice" role="status"><strong>Setup in progress</strong><p>{config.reason} Forms are disabled until a dedicated authentication environment is connected.</p></div>}
       {notice && notices[notice] && <p className="notice" role="status">{notices[notice]}</p>}

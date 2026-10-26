@@ -7,7 +7,7 @@ test("public landing page is responsive and truthful", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Your Revenue.");
   await expect(page.getByText(/Income is not guaranteed/).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Explore the OneToolz store" })).toHaveAttribute("href", "https://cu.onetoolz.com");
-  await expect(page.getByText("Pre-launch", { exact: true })).toBeVisible();
+  await expect(page.getByText("● Live", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(response?.headers()["content-security-policy"]).toContain("frame-ancestors 'none'");
   expect(response?.headers()["cache-control"]).toContain("no-store");
@@ -19,7 +19,7 @@ test("opportunity journey supports registration, FAQs and reduced motion", async
   await page.goto("/");
   expect(await page.locator(".opportunity-art").evaluate(element => getComputedStyle(element).animationName)).toBe("none");
   await page.getByText("Can I start earning today?", { exact: true }).click();
-  await expect(page.getByText(/Not yet. The program is in pre-launch/)).toBeVisible();
+  await expect(page.getByText(/the program is live and referral tracking is switched on/)).toBeVisible();
   await page.getByRole("link", { name: "Apply to Earn →", exact: true }).first().click();
   await expect(page).toHaveURL(/\/register$/);
   await expect(page.getByRole("heading", { name: "Your next chapter starts here." })).toBeVisible();

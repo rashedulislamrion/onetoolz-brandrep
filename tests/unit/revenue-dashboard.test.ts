@@ -19,7 +19,7 @@ describe("revenue workspace integration boundary", () => {
     expect(html).toContain("Reporting is not connected");
     expect(html).toContain("not a zero balance");
     expect(html.match(/aria-label="Not connected"/g)).toHaveLength(8);
-    expect(html).toContain("Referral tracking and order credit are not activated yet");
+    expect(html).toContain("Referral tracking is live: first-click credit");
     expect(html).toContain('href="/dashboard/referrals"');
     expect(html).toContain("No payment records or available balances are shown");
     expect(html).not.toContain("$0");

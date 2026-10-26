@@ -26,7 +26,7 @@ describe("referral workspace", () => {
   });
   it("renders a truthful empty state and creation form", async () => {
     const html = await render(); expect(html).toContain("No campaigns created"); expect(html).toContain("Create a campaign");
-    expect(html).toContain("No referral cookies, click counts, order credit or commissions are recorded yet");
+    expect(html).toContain("Referral tracking is live");
     expect(from).toHaveBeenCalledWith("referral_campaigns"); expect(limit).toHaveBeenCalledWith(50);
   });
   it("does not offer saving when schema/storage is unavailable", async () => {
@@ -41,7 +41,7 @@ describe("referral workspace", () => {
     const html = await render("saved");
     expect(html).toContain(`https://brandrep.onetoolz.com/r/${"a".repeat(32)}`);
     expect(html).toContain("&lt;script&gt;test&lt;/script&gt;"); expect(html).not.toContain("<script>test</script>");
-    expect(html).toContain("Pause"); expect(html).toContain("Resume"); expect(html).toContain("does not yet track orders or earn commissions");
+    expect(html).toContain("Pause"); expect(html).toContain("Resume"); expect(html).toContain("clicks and eligible orders are tracked from now on");
   });
   it("renders the store-link section with no active link and no token shown", async () => {
     const html = await render();
