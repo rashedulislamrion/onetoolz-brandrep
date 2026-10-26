@@ -29,7 +29,8 @@ export async function publishProgramPolicy(form: FormData) {
   if (!input) redirect("/admin/settings?notice=publicationInvalid");
   const { error } = await client.rpc("publish_program_policy", {
     p_request_id: input.requestId, p_draft_revision: input.draftRevision, p_expected_version: input.expectedVersion,
-    p_currency_decimals: input.currencyDecimals, p_basis: input.basis, p_refund_rule: input.refundRule, p_reason: input.reason,
+    p_currency_decimals: input.currencyDecimals, p_basis: input.basis, p_refund_rule: input.refundRule,
+    p_rounding: input.rounding, p_qualification: input.qualification, p_reason: input.reason,
   });
   if (error) redirect(error.code === "40001" ? "/admin/settings?notice=conflict" : "/admin/settings?notice=publicationFailed");
   revalidatePath("/admin/settings");
