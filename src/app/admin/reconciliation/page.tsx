@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireAccess } from "@/lib/auth/access";
 import { formatReconciliationMinor, mapReconciliationOverview } from "@/lib/ledger/reconciliation";
 
@@ -15,14 +14,14 @@ export default async function AdminReconciliationPage() {
     const { data, error } = await client.rpc("admin_reconciliation_overview");
     if (!error) overview = mapReconciliationOverview(data);
   } catch { overview = null; }
-  return <section className="section content-page"><span className="eyebrow">ADMINISTRATION</span>
+  return <><div className="page-head"><div><span className="eyebrow">ADMINISTRATION / RECONCILIATION</span>
     <h1>Ledger reconciliation.</h1>
-    <p>Every commission journal in the system moves value out of the platform expense source into affiliate buckets or clearing: earnings credit <em>held</em>, hold releases move <em>held → payable</em>, payout requests reserve <em>payable → reserved</em>, recorded settlements move <em>reserved → clearing</em>, and refund reversals return value to expense. So per currency, the debits accumulated on expense must equal the balances still sitting in held + payable + reserved + disputed + recovery + clearing. A mismatch means a journal outside those flows touched the ledger — investigate before any payout is settled.</p>
+    <p className="lead">Every commission journal in the system moves value out of the platform expense source into affiliate buckets or clearing: earnings credit <em>held</em>, hold releases move <em>held → payable</em>, payout requests reserve <em>payable → reserved</em>, recorded settlements move <em>reserved → clearing</em>, and refund reversals return value to expense. So per currency, the debits accumulated on expense must equal the balances still sitting in held + payable + reserved + disputed + recovery + clearing. A mismatch means a journal outside those flows touched the ledger — investigate before any payout is settled.</p></div></div>
     {overview === null
       ? <p className="notice" role="alert"><strong>Reconciliation data could not be loaded.</strong><br />No balanced state should be assumed. The ledger may be fine; this page simply has no verified reading right now.</p>
       : overview.length === 0
         ? <p className="notice" role="status">No ledger accounts, commission calculations or payout requests exist yet, so there is nothing to reconcile.</p>
-        : overview.map(currency => <article className="feature-card" key={currency.currency}>
+        : overview.map(currency => <article className="panel dash-table" key={currency.currency}>
           <h2>{currency.currency} — {currency.balanced
             ? <>reconciles <span aria-label="Reconciled">✓</span></>
             : <>MISMATCH <span aria-label="Mismatch">✗</span></>}</h2>
@@ -40,5 +39,5 @@ export default async function AdminReconciliationPage() {
           {currency.calculations.length > 0 && <div className="table-scroll"><table><caption className="field-help">Recorded commission calculations, current (head) revisions only; superseded revisions are history.</caption><thead><tr><th scope="col">Qualification</th><th scope="col">Calculations</th><th scope="col">Net (minor units)</th></tr></thead><tbody>{currency.calculations.map(entry => <tr key={entry.qualification}><td>{entry.qualification}</td><td>{entry.count}</td><td>{entry.netMinor}</td></tr>)}</tbody></table></div>}
           {currency.payouts.length > 0 && <div className="table-scroll"><table><caption className="field-help">Payout requests by status for this currency.</caption><thead><tr><th scope="col">Payout status</th><th scope="col">Requests</th><th scope="col">Amount (minor units)</th></tr></thead><tbody>{currency.payouts.map(entry => <tr key={entry.status}><td>{entry.status}</td><td>{entry.count}</td><td>{entry.amountMinor}</td></tr>)}</tbody></table></div>}
         </article>)}
-    <div className="hero-actions"><Link href="/admin" className="text-link">Back to administration</Link></div></section>;
+    </>;
 }

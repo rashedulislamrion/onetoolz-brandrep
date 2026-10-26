@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireAccess } from "@/lib/auth/access";
 import { mapAdminPayoutQueue } from "@/lib/payouts/overview";
 import { SubmitButton } from "@/components/submit-button";
@@ -22,9 +21,9 @@ export default async function AdminPayoutsPage({ searchParams }: { searchParams:
     const { data, error } = await client.rpc("admin_payout_queue");
     if (!error) queue = mapAdminPayoutQueue(data);
   } catch { queue = null; }
-  return <section className="section content-page"><span className="eyebrow">ADMINISTRATION</span>
+  return <><div className="page-head"><div><span className="eyebrow">ADMINISTRATION / PAYOUTS</span>
     <h1>Payout queue.</h1>
-    <p>Every request below already holds a ledger reservation. <strong>Settlement is manual:</strong> send the money outside BrandRep first, then record its external transfer reference here — recording a settlement never moves money by itself, and a request is only settled once a reference is saved. You can never review, settle or fail your own payout request.</p>
+    <p className="lead">Every request below already holds a ledger reservation. <strong>Settlement is manual:</strong> send the money outside BrandRep first, then record its external transfer reference here — recording a settlement never moves money by itself, and a request is only settled once a reference is saved. You can never review, settle or fail your own payout request.</p></div></div>
     {params.notice && notices[params.notice] && <p className="notice" role="status">{notices[params.notice]}</p>}
     {queue === null
       ? <p className="notice" role="alert">The payout queue could not be loaded. No empty-queue assumption should be made.</p>
@@ -54,5 +53,5 @@ export default async function AdminPayoutsPage({ searchParams }: { searchParams:
                 </>}
         </article>)}
       </>}
-    <div className="hero-actions"><Link href="/admin" className="text-link">Back to administration</Link></div></section>;
+    </>;
 }

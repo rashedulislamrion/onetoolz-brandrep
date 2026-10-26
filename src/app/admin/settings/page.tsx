@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import Link from "next/link";
 import { requireAccess } from "@/lib/auth/access";
 import { percentageFromBasisPoints } from "@/lib/admin/program-settings";
 import { SubmitButton } from "@/components/submit-button";
@@ -27,14 +26,14 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
     publicationInvalid: "Choose a saved draft, currency precision, calculation basis, refund rule and explicit publication confirmation.",
     publicationFailed: "Publication could not be confirmed. Check storage availability and currency precision, then refresh before retrying.",
   };
-  return <section className="section content-page"><span className="eyebrow">ADMINISTRATION</span>
+  return <><div className="page-head"><div><span className="eyebrow">ADMINISTRATION / SETTINGS</span>
     <h1>Commission &amp; disbursement settings.</h1>
-    <p>Configure commission and payout rules here. Save a draft, then explicitly publish the latest revision below.</p>
+    <p className="lead">Configure commission and payout rules here. Save a draft, then explicitly publish the latest revision below.</p></div></div>
     <div className="notice"><strong>Admin-controlled rules — no automatic transfers</strong>
-      <p>Draft saves are inactive. Publishing preserves an immutable policy effective from publication, without rewriting older rules. Order calculation, settlement validation and payout execution must be integrated separately; publishing alone does not create earnings or send money.</p></div>
+      <p>Draft saves are inactive. Publishing preserves an immutable policy effective from publication, without rewriting older rules, and activates those rules for future eligible orders. Publishing alone never sends money: payout settlement is always manual, and posting recorded commissions to balances stays behind the settlement-evidence gate.</p></div>
     {params.notice && notices[params.notice] && <p className="notice" role="status">{notices[params.notice]}</p>}
     {error ? <p className="notice" role="alert">Settings storage is unavailable or not installed. Saving is disabled; no default policy is assumed.</p> : <>
-      <form action={saveProgramSettings} className="feature-card">
+      <form action={saveProgramSettings} className="form-panel">
         <input type="hidden" name="requestId" value={randomUUID()} />
         <input type="hidden" name="revision" value={latest?.revision ?? 0} />
         <h2>{latest ? `Edit draft revision ${latest.revision}` : "Create the first draft"}</h2>
@@ -54,7 +53,7 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
       </form>
       <h2>Recent draft revisions</h2>
       {!data?.length && <p>No policy draft has been saved.</p>}
-      {data?.map(draft => <article className="feature-card" key={draft.revision}>
+      {data?.map(draft => <article className="panel" key={draft.revision}>
         <h3>Revision {draft.revision} · Draft</h3>
         <p>{percentageFromBasisPoints(draft.commission_bps)}% proposed commission · {draft.currency} {draft.minimum_payout} minimum · {draft.hold_days}-day hold · {draft.payout_cadence} review</p>
         <p className="review-text">{draft.reason}</p><p className="field-help">{draft.created_at} · UTC timestamp</p>
@@ -63,7 +62,7 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
     </>}
     <h2>Publish commission policy</h2>
     {policyError ? <p className="notice" role="alert">Policy publication storage is unavailable or not installed. Publishing is disabled; draft editing remains separate.</p> : <>
-      {!error && latest && published?.draft_revision !== latest.revision ? <form action={publishProgramPolicy} className="feature-card">
+      {!error && latest && published?.draft_revision !== latest.revision ? <form action={publishProgramPolicy} className="form-panel">
         <input type="hidden" name="requestId" value={randomUUID()} />
         <input type="hidden" name="draftRevision" value={latest.revision} />
         <input type="hidden" name="expectedVersion" value={published?.version ?? 0} />
@@ -83,7 +82,7 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
       </form> : <p>{error ? "Draft storage must be available before publication." : latest ? "The latest draft is already published. Save a new draft to change the rules." : "Save a draft before publishing a policy."}</p>}
       <h2>Published policy history</h2>
       {!policies?.length && <p>No policy is published. No commission rate is assumed.</p>}
-      {policies?.map(policy => <article className="feature-card" key={policy.version}><h3>Policy {policy.version} · Draft {policy.draft_revision}</h3>
+      {policies?.map(policy => <article className="panel" key={policy.version}><h3>Policy {policy.version} · Draft {policy.draft_revision}</h3>
         <p>{percentageFromBasisPoints(policy.commission_bps)}% · {policy.currency} ({policy.currency_decimals} decimal places) · {policy.basis} basis · {policy.refund_rule} refunds</p>
         <p>Rounding {policy.rounding ?? "not recorded"} · Qualification {policy.qualification ?? "not recorded"}</p>
         <p>{policy.currency} {policy.minimum_payout} minimum · {policy.hold_days}-day hold · {policy.payout_cadence} review · All products, one-time order scope</p>
@@ -91,6 +90,5 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
       </article>)}
       <p className="field-help">Showing the latest 10 published versions. Prior versions remain stored and cannot be edited through the application.</p>
     </>}
-    <Link href="/admin" className="text-link">Back to administration</Link>
-  </section>;
+  </>;
 }
