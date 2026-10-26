@@ -19,7 +19,8 @@ describe("administrator policy editor", () => {
   });
   it("offers explicit publication choices for the latest saved draft", async () => {
     const html = await render(); expect(access).toHaveBeenCalledWith("admin");
-    for (const text of ["Publish draft 1 as policy 1", 'name="currencyDecimals"', 'name="basis"', 'name="refundRule"', 'name="publishConfirmed"', "No policy is published"]) expect(html).toContain(text);
+    for (const text of ["Publish draft 1 as policy 1", 'name="currencyDecimals"', 'name="basis"', 'name="refundRule"', 'name="rounding"', 'name="qualification"', 'name="publishConfirmed"', "No policy is published"]) expect(html).toContain(text);
+    for (const text of ["Half up (standard)", "Down (truncate)", "Verified paid + completed order", "completed order status alone never earns", "PipraPay settlement evidence remains a separate gate"]) expect(html).toContain(text);
     expect(html).not.toContain("private");
   });
   it("keeps draft editing independent when publication storage is missing", async () => {
@@ -30,6 +31,12 @@ describe("administrator policy editor", () => {
     policyResult = { data: [{ ...draft, version: 1, draft_revision: 1, currency_decimals: 2, basis: "net_items", refund_rule: "proportional", reason: "<script>bad</script>", effective_at: "2026-10-16" }], error: null };
     const html = await render(); expect(html).toContain("latest draft is already published"); expect(html).not.toContain('name="publishConfirmed"');
     expect(html).toContain("&lt;script&gt;bad&lt;/script&gt;");
+    expect(html).toContain("Rounding not recorded"); expect(html).toContain("Qualification not recorded");
+  });
+  it("shows stored rounding and qualification in published policy history", async () => {
+    policyResult = { data: [{ ...draft, version: 1, draft_revision: 1, currency_decimals: 2, basis: "net_items", refund_rule: "proportional", rounding: "half_up", qualification: "paid_completed", effective_at: "2026-10-16" }], error: null };
+    const html = await render();
+    expect(html).toContain("Rounding half_up"); expect(html).toContain("Qualification paid_completed"); expect(html).not.toContain("not recorded");
   });
   it("requires a saved draft before publication", async () => {
     draftResult = { data: [], error: null }; expect(await render()).toContain("Save a draft before publishing");

@@ -11,7 +11,8 @@ import { publishProgramPolicy } from "@/app/admin/settings/actions";
 function valid() {
   const form = new FormData();
   Object.entries({ requestId: "10000000-0000-4000-8000-000000000001", draftRevision: "3", expectedVersion: "1",
-    currencyDecimals: "2", basis: "net_items", refundRule: "proportional", reason: "Approved by administrator", publishConfirmed: "yes" })
+    currencyDecimals: "2", basis: "net_items", refundRule: "proportional", rounding: "half_up", qualification: "paid_completed",
+    reason: "Approved by administrator", publishConfirmed: "yes" })
     .forEach(([key, value]) => form.set(key, value));
   return form;
 }
@@ -21,11 +22,13 @@ beforeEach(() => {
 describe("admin policy publication", () => {
   it("parses explicit choices without financial defaults", () => {
     expect(parsePolicyPublication(valid())).toEqual({ requestId: "10000000-0000-4000-8000-000000000001", draftRevision: 3,
-      expectedVersion: 1, currencyDecimals: 2, basis: "net_items", refundRule: "proportional", reason: "Approved by administrator" });
+      expectedVersion: 1, currencyDecimals: 2, basis: "net_items", refundRule: "proportional", rounding: "half_up",
+      qualification: "paid_completed", reason: "Approved by administrator" });
     expect(parsePolicyPublication(new FormData())).toBeNull();
   });
   it.each([["draftRevision", "0"], ["draftRevision", "1e2"], ["expectedVersion", "-1"], ["expectedVersion", "01"],
     ["currencyDecimals", "7"], ["currencyDecimals", "2.5"], ["basis", "unknown"], ["refundRule", "none"],
+    ["rounding", "bankers"], ["qualification", "completed_only"],
     ["requestId", "---------0000-4000-8000-000000000001"], ["reason", "short"], ["publishConfirmed", "no"]])("rejects %s=%s", (key, value) => {
     const form = valid(); form.set(key, value); expect(parsePolicyPublication(form)).toBeNull();
   });
@@ -46,11 +49,20 @@ describe("admin policy publication", () => {
     const form = valid(); form.delete("publishConfirmed");
     await expect(publishProgramPolicy(form)).rejects.toThrow("notice=publicationInvalid"); expect(mocks.rpc).not.toHaveBeenCalled();
   });
+  it("does not call RPC for an invalid rounding mode", async () => {
+    const form = valid(); form.set("rounding", "bankers");
+    await expect(publishProgramPolicy(form)).rejects.toThrow("notice=publicationInvalid"); expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+  it("does not call RPC when qualification is missing", async () => {
+    const form = valid(); form.delete("qualification");
+    await expect(publishProgramPolicy(form)).rejects.toThrow("notice=publicationInvalid"); expect(mocks.rpc).not.toHaveBeenCalled();
+  });
   it("publishes only through MFA admin access and validated RPC arguments", async () => {
     await expect(publishProgramPolicy(valid())).rejects.toThrow("notice=published"); expect(mocks.access).toHaveBeenCalledWith("admin");
     expect(mocks.rpc).toHaveBeenCalledExactlyOnceWith("publish_program_policy", {
       p_request_id: "10000000-0000-4000-8000-000000000001", p_draft_revision: 3, p_expected_version: 1,
-      p_currency_decimals: 2, p_basis: "net_items", p_refund_rule: "proportional", p_reason: "Approved by administrator",
+      p_currency_decimals: 2, p_basis: "net_items", p_refund_rule: "proportional",
+      p_rounding: "half_up", p_qualification: "paid_completed", p_reason: "Approved by administrator",
     });
     expect(mocks.revalidate).toHaveBeenCalledWith("/admin/settings");
   });

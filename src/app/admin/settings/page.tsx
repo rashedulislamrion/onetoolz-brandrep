@@ -15,7 +15,7 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
     .order("revision", { ascending: false }).limit(10);
   const latest = data?.[0];
   const { data: policies, error: policyError } = await client.from("program_policies")
-    .select("version,draft_revision,commission_bps,currency,currency_decimals,minimum_payout,hold_days,payout_cadence,basis,refund_rule,scope,effective_at,reason")
+    .select("version,draft_revision,commission_bps,currency,currency_decimals,minimum_payout,hold_days,payout_cadence,basis,refund_rule,rounding,qualification,scope,effective_at,reason")
     .order("version", { ascending: false }).limit(10);
   const published = policies?.[0];
   const notices: Record<string, string> = {
@@ -73,6 +73,9 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
         <p className="field-help">Select the actual currency precision, not an invented exchange rate. The minimum payout must fit that precision.</p>
         <label>Calculation basis<select name="basis" required defaultValue=""><option value="" disabled>Choose a basis</option><option value="net_items">Item totals after discounts, excluding tax and shipping</option><option value="order_total">Full order total, including tax and shipping</option></select></label>
         <label>Refund treatment<select name="refundRule" required defaultValue=""><option value="" disabled>Choose a refund rule</option><option value="proportional">Proportional reversal against the chosen basis</option><option value="full_on_any_refund">Reverse the entire commission on any refund</option></select></label>
+        <label>Rounding<select name="rounding" required defaultValue=""><option value="" disabled>Choose a rounding mode</option><option value="half_up">Half up (standard)</option><option value="down">Down (truncate)</option></select></label>
+        <label>Qualification<select name="qualification" required defaultValue=""><option value="" disabled>Choose a qualification rule</option><option value="paid_completed">Verified paid + completed order</option></select></label>
+        <p className="field-help">A completed order status alone never earns commission: qualification requires verified payment as well as completion, and PipraPay settlement evidence remains a separate gate before any amount can be released.</p>
         <p className="field-help">This release supports percentage commissions on all products, one commission per eligible order; no recurring renewal awards or product overrides. Effective immediately on publication; no backdating. Payout cadence is review timing, not transfer authorization.</p>
         <label>Publication reason<textarea name="reason" minLength={10} maxLength={1000} rows={3} required /></label>
         <label className="check-label"><input type="checkbox" name="publishConfirmed" value="yes" required /> I approve the displayed draft, calculation/refund choices, currency precision and all-products one-time scope for future eligible orders.</label>
@@ -82,6 +85,7 @@ export default async function ProgramSettings({ searchParams }: { searchParams: 
       {!policies?.length && <p>No policy is published. No commission rate is assumed.</p>}
       {policies?.map(policy => <article className="feature-card" key={policy.version}><h3>Policy {policy.version} · Draft {policy.draft_revision}</h3>
         <p>{percentageFromBasisPoints(policy.commission_bps)}% · {policy.currency} ({policy.currency_decimals} decimal places) · {policy.basis} basis · {policy.refund_rule} refunds</p>
+        <p>Rounding {policy.rounding ?? "not recorded"} · Qualification {policy.qualification ?? "not recorded"}</p>
         <p>{policy.currency} {policy.minimum_payout} minimum · {policy.hold_days}-day hold · {policy.payout_cadence} review · All products, one-time order scope</p>
         <p className="review-text">{policy.reason}</p><p className="field-help">Effective {policy.effective_at} · UTC server timestamp</p>
       </article>)}
