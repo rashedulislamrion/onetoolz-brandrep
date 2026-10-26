@@ -26,9 +26,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ cod
     const destination = typeof data === "string" ? storeDestination(data) : null;
     if (!destination) return unavailable(404);
     // Hand the campaign code to the store as br_ref. The store-side connector
-    // (docs/STORE_CONNECTOR.md) reads it, applies its consent flow, sets its
-    // own first-party cookie and signs evidence to the bridge. The hub itself
-    // still sets no cookies and writes no click evidence on this route.
+    // (docs/STORE_CONNECTOR.md) reads it, auto-captures the referral (no
+    // consent popup), sets its own first-party cookie and signs evidence to
+    // the bridge. The hub itself still sets no cookies and writes no click
+    // evidence on this route.
     const target = new URL(destination);
     target.searchParams.set("br_ref", code);
     const response = NextResponse.redirect(target.href, 302);

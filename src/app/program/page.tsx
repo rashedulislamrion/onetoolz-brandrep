@@ -1,7 +1,7 @@
 export const metadata = { title: "Program details" };
 
 const policies: [string, string, string][] = [
-  ["LIVE", "Attribution & cookies", "First-click credit within a 7-day window; self-referrals never earn. A later click does not replace or extend the original window. Tracking is live on the OneToolz store and consent-based — visitors who decline are not tracked."],
+  ["LIVE", "Attribution & cookies", "First-click credit within a 7-day window; self-referrals never earn. A later click does not replace or extend the original window. Tracking is live on the OneToolz store and activates automatically when a referral link is clicked — no popup or extra step for the visitor."],
   ["LIVE", "Validation & reversals", "An order earns only when it is verified paid and completed under the published policy's qualification rule — a completed status alone never earns. Refund adjustments follow the published refund rule: proportional reversal, or full reversal on any refund."],
   ["LIVE", "Payment methods & timing", "Request a payout from your dashboard once your available balance meets the published minimum. Every request is reviewed by an administrator; settlement is manual (for example bKash or bank transfer) and the transfer reference is recorded on the request. The policy's cadence is a review rhythm, not a payment promise."],
   ["SET BY PUBLISHED POLICY", "Commission structure", "The rate, calculation basis and currency live in the published program policy and are shown in every approved partner's dashboard. Until the first policy is published, no rate applies to any order. Calculator inputs are personal assumptions only."],

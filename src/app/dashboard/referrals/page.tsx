@@ -13,21 +13,25 @@ export default async function Referrals({ searchParams }: { searchParams: Promis
   const { client, user } = await requireAccess("affiliate");
   const params = await searchParams;
   const config = getAuthConfiguration(process.env);
-  const { data, error } = await client.from("referral_campaigns")
-    .select("id,code,name,destination_path,active,created_at").order("created_at", { ascending: false }).limit(50);
-  // Store-link status comes from an RPC; the private referral schema is
-  // never exposed to the browser client. Missing storage fails closed.
-  let storeLink: { active: boolean; created_at: string | null } | null = null;
-  let storeLinkError = false;
-  try {
-    const { data: status, error: statusError } = await client.rpc("store_link_status");
-    if (statusError) storeLinkError = true;
-    else {
-      const row = Array.isArray(status) ? status[0] : status;
-      if (row && typeof row.active === "boolean") storeLink = { active: row.active, created_at: row.created_at ?? null };
-      else storeLinkError = true;
-    }
-  } catch { storeLinkError = true; }
+  // The campaigns query and the store-link status RPC are independent, so
+  // they run in parallel instead of two sequential round-trips. Store-link
+  // status comes from an RPC; the private referral schema is never exposed
+  // to the browser client. Missing storage fails closed.
+  const [{ data, error }, storeLinkResult] = await Promise.all([
+    client.from("referral_campaigns")
+      .select("id,code,name,destination_path,active,created_at").order("created_at", { ascending: false }).limit(50),
+    (async (): Promise<{ link: { active: boolean; created_at: string | null } | null; failed: boolean }> => {
+      try {
+        const { data: status, error: statusError } = await client.rpc("store_link_status");
+        if (statusError) return { link: null, failed: true };
+        const row = Array.isArray(status) ? status[0] : status;
+        if (row && typeof row.active === "boolean") return { link: { active: row.active, created_at: row.created_at ?? null }, failed: false };
+        return { link: null, failed: true };
+      } catch { return { link: null, failed: true }; }
+    })(),
+  ]);
+  const storeLink = storeLinkResult.link;
+  const storeLinkError = storeLinkResult.failed;
   const shownToken = isStoreLinkToken(params.token) ? params.token : null;
   const notices: Record<string, string> = {
     saved: "Campaign saved. Share the link — clicks and eligible orders are tracked from now on.",
@@ -41,7 +45,7 @@ export default async function Referrals({ searchParams }: { searchParams: Promis
     <div className="page-head"><div><span className="eyebrow">PARTNER / REFERRALS</span>
       <h1>Your campaign links.</h1>
       <p className="lead">Approved rules: first-click credit, a 7-day window, and no self-referrals. Later clicks do not reset the window.</p></div></div>
-    <div className="notice"><strong>Referral tracking is live</strong><p>Links open the OneToolz store with your campaign code. With the visitor&apos;s consent, the store records the click, and eligible paid orders are attributed back to your campaign under the rules above.</p></div>
+    <div className="notice"><strong>Referral tracking is live</strong><p>Links open the OneToolz store with your campaign code. Tracking activates automatically when the link is clicked — the store records the click with no popup or extra step — and eligible paid orders are attributed back to your campaign under the rules above.</p></div>
     {params.notice && notices[params.notice] && <p className="notice" role="status">{notices[params.notice]}</p>}
     {error ? <p className="notice" role="alert">Campaign storage is unavailable or the referral migration is not installed. Creation is disabled.</p> : <>
       <form action={createCampaign} className="form-panel">

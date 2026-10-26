@@ -9,13 +9,16 @@ export const metadata = { title: "Program settings" };
 export default async function ProgramSettings({ searchParams }: { searchParams: Promise<{ notice?: string }> }) {
   const { client } = await requireAccess("admin");
   const params = await searchParams;
-  const { data, error } = await client.from("program_settings_drafts")
-    .select("revision,commission_bps,currency,minimum_payout,hold_days,payout_cadence,reason,created_at")
-    .order("revision", { ascending: false }).limit(10);
+  // Drafts and published policies are independent reads: fetch in parallel.
+  const [{ data, error }, { data: policies, error: policyError }] = await Promise.all([
+    client.from("program_settings_drafts")
+      .select("revision,commission_bps,currency,minimum_payout,hold_days,payout_cadence,reason,created_at")
+      .order("revision", { ascending: false }).limit(10),
+    client.from("program_policies")
+      .select("version,draft_revision,commission_bps,currency,currency_decimals,minimum_payout,hold_days,payout_cadence,basis,refund_rule,rounding,qualification,scope,effective_at,reason")
+      .order("version", { ascending: false }).limit(10),
+  ]);
   const latest = data?.[0];
-  const { data: policies, error: policyError } = await client.from("program_policies")
-    .select("version,draft_revision,commission_bps,currency,currency_decimals,minimum_payout,hold_days,payout_cadence,basis,refund_rule,rounding,qualification,scope,effective_at,reason")
-    .order("version", { ascending: false }).limit(10);
   const published = policies?.[0];
   const notices: Record<string, string> = {
     saved: "Draft saved with an immutable revision. No earning or disbursement rules were activated.",
